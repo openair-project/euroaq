@@ -1,0 +1,75 @@
+---
+title: "Importing EEA AQ Data with {euroaq}"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{euroaq}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(euroaq)
+```
+
+Before you download any data, it may be useful to access some key metadata. The following functions are available to do so:
+
+- `import_eea_pollutants()` accesses pollutant names and identifiers.
+
+- `import_eea_countries()` accesses country names and identifiers.
+
+- `import_eea_cities()` accesses city names in a given country or countries.
+
+Each of these functions will return R data frames. It may be useful to bind them to the measurement datasets.
+
+For importing European air quality data, there are three options, mirroring the three options outlined in <https://eeadmz1-downloads-webapp.azurewebsites.net/content/documentation/How_To_Downloads.pdf>. Each of these has options to control where data is imported from (countries & cities), specific pollutants to import, and the datasets of origin. Two of the three also allow for users to specify a start and end date, as well as an aggregation type.
+
+- `download_eea_parquet_files()` will download a zip folder of parquet files to a user-specified file, returning the file path.
+
+```r
+download_eea_parquet_files(file = "mydata.zip")
+
+zip::unzip(zipfile = "mydata.zip", exdir = "parquets")
+
+paths <- dir("parquets", recursive = TRUE, full.names = TRUE)
+
+tables <- purrr::map(.x = paths, .f = arrow::read_parquet)
+
+aqdata <- dplyr::bind_rows(tables)
+```
+
+- `download_eea_parquet_async()` will initiate the construction of a zip folder of parquet files and returns a URL at which a zip file will be eventually available.
+
+```r
+zippath <- download_eea_parquet_async()
+
+# wait for zip to be populated
+
+download.file(url = zippath, destfile = "mydata.zip")
+
+zip::unzip(zipfile = "mydata.zip", exdir = "parquets")
+
+paths <- dir("parquets", recursive = TRUE, full.names = TRUE)
+
+tables <- purrr::map(.x = paths, .f = arrow::read_parquet)
+
+aqdata <- dplyr::bind_rows(tables)
+```
+
+- `download_eea_parquet_urls()` will return an R character vector of a list of URLs at which individual parquet files can be found. This function ignores the datetime and aggregation type arguments.
+
+```r
+urls <- download_eea_parquet_urls()
+
+tables <- purrr::map(.x = urls, .f = arrow::read_parquet)
+
+aqdata <- dplyr::bind_rows(tables)
+```
+
+At time of writing there is no API endpoint for site metadata; users are encouraged to manually download relevant metadata from <https://discomap.eea.europa.eu/App/AQViewer/index.html?fqn=Airquality_Dissem.b2g.measurements> to bind to their data to learn site names, locations, classifications, and so on.
