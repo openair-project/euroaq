@@ -2,8 +2,8 @@
 #' @noRd
 enframe_json <- function(x) {
   x <- x %>%
-    purrr::map(as.data.frame) %>%
-    purrr::list_rbind() %>%
+    lapply(as.data.frame) %>%
+    (function(x) Reduce(rbind, x))() %>%
     tibble::tibble()
 
   return(x)

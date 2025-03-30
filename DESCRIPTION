@@ -11,7 +11,6 @@ Description: Access data from the European Environment Agency's Air
 License: MIT + file LICENSE
 Imports: 
     httr2,
-    purrr,
     tibble
 Suggests: 
     knitr,
