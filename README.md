@@ -2,6 +2,7 @@
 # euroaq: R wrappers for the EEA's Air Quality download service
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/openair-project/euroaq/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/openair-project/euroaq/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 **euroaq** is an R wrapper for the European Environment Agency's 
