@@ -6,8 +6,6 @@ enframe_json <- function(x) {
     purrr::list_rbind() %>%
     tibble::tibble()
 
-  names(x) <- snakecase::to_snake_case(names(x))
-
   return(x)
 }
 

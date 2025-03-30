@@ -3,6 +3,7 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/openair-project/euroaq/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/openair-project/euroaq/actions/workflows/R-CMD-check.yaml)
+[![CRAN status](https://www.r-pkg.org/badges/version/euroaq)](https://CRAN.R-project.org/package=euroaq)
 <!-- badges: end -->
 
 **euroaq** is an R wrapper for the European Environment Agency's 
