@@ -10,7 +10,6 @@
 [Air Quality Download Service API](https://eeadmz1-downloads-webapp.azurewebsites.net/), 
 which gives programmatic access to data flows E1a and E2a, as well as historic 'Airbase' data.
 
-This package is compatible with version `0.7` of the AQ Downloads service,
-released on `2024-11-18` and, at time of writing, provides R functions
-corresponding to all 7 API endpoints provided by the EEA, as well as access 
-to data flow D station metadata.
+> [!NOTE]  
+> This package is compatible with version `0.8` of the AQ Downloads service, released on `2025-03-31`. If a newer version is released, please [raise an issue](https://github.com/openair-project/euroaq/issues) if there isn't already one.
+
