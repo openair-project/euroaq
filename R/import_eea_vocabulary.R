@@ -25,11 +25,12 @@ import_eea_cities <- function(country) {
 
   response <- httr2::req_perform(request)
 
-  table <- httr2::resp_body_json(response) |>
-    enframe_json()
+  table <- httr2::resp_body_json(response, simplifyVector = TRUE) |>
+    dplyr::tibble() |>
+    dplyr::rename_with(snakecase::to_snake_case)
 
   if (nrow(table) == 0) {
-    return(tibble::tibble(country_code = character(), city_name = character()))
+    return(dplyr::tibble(country_code = character(), city_name = character()))
   } else {
     return(table)
   }
@@ -40,8 +41,9 @@ import_eea_cities <- function(country) {
 import_eea_countries <- function() {
   httr2::request(construct_url("Country")) |>
     httr2::req_perform() |>
-    httr2::resp_body_json() |>
-    enframe_json()
+    httr2::resp_body_json(simplifyVector = TRUE) |>
+    dplyr::tibble() |>
+    dplyr::rename_with(snakecase::to_snake_case)
 }
 
 #' @rdname eea-metadata
@@ -50,17 +52,28 @@ import_eea_pollutants <- function() {
   pollutants <-
     httr2::request(construct_url("Pollutant")) |>
     httr2::req_perform() |>
-    httr2::resp_body_json() |>
-    enframe_json()
+    httr2::resp_body_json(simplifyVector = TRUE) |>
+    dplyr::tibble() |>
+    dplyr::rename_with(snakecase::to_snake_case)
 
   pollutants$url <- pollutants$id
   pollutants$id <-
-    stringi::stri_replace(pollutants$id, "", fixed = "http://dd.eionet.europa.eu/vocabulary/aq/pollutant/")
+    stringi::stri_replace(
+      pollutants$id,
+      "",
+      fixed = "http://dd.eionet.europa.eu/vocabulary/aq/pollutant/"
+    )
   pollutants$id <-
-    stringi::stri_replace(pollutants$id, "", fixed = "http://dd.eionet.europa.eu/vocabularyconcept/aq/pollutant/")
+    stringi::stri_replace(
+      pollutants$id,
+      "",
+      fixed = "http://dd.eionet.europa.eu/vocabularyconcept/aq/pollutant/"
+    )
   pollutants$id <-
     stringi::stri_replace(pollutants$id, "", fixed = "/view")
   pollutants$id <- as.integer(pollutants$id)
+
+  pollutants$pk <- NULL
 
   names(pollutants) <- c("pollutant", "pollutant_id", "vocabulary_url")
 

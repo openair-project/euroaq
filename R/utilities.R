@@ -1,16 +1,3 @@
-#' Helper for formatting
-#' @noRd
-enframe_json <- function(x) {
-  x <- x |>
-    lapply(as.data.frame) |>
-    (function(x) Reduce(rbind, x))() |>
-    tibble::tibble()
-
-  names(x) <- snakecase::to_snake_case(names(x))
-
-  return(x)
-}
-
 #' Helper to construct the base URL
 #' @noRd
 construct_url <- function(x) {
