@@ -31,3 +31,4 @@ reference:
     directly, but expect the most from the user.
   contents:
   - download_eea_parquet_files
+  - get_eea_version

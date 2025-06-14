@@ -23,10 +23,10 @@
 #' @param dataset The value of the dataset. One of:
 #'
 #'   1. Unverified data transmitted continuously (Up-To-Date/UTD/E2a) data from
-#'   the beginning of 2023.
+#'   the beginning of the year.
 #'
-#'   2. Verified data (E1a) from 2013 to 2022 reported by countries by 30
-#'   September each year for the previous year.
+#'   2. Verified data (E1a) from 2013, reported by countries by 30 September
+#'   each year for the previous year.
 #'
 #'   3. Historical Airbase data delivered between 2002 and 2012 before Air
 #'   Quality Directive 2008/50/EC entered into force
