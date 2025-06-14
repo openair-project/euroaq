@@ -41,7 +41,7 @@ import_eea_monitoring <-
     dir.create(path = exdir)
 
     # unzip zip file into dir
-    unzip(zipfile = zipdest, exdir = exdir)
+    utils::unzip(zipfile = zipdest, exdir = exdir)
 
     # list all parquet files in the dir
     pfiles <- list.files(exdir, recursive = T, pattern = ".parquet")
