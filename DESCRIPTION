@@ -18,11 +18,11 @@ Imports:
     dplyr,
     httr2,
     purrr,
-    readr,
     rlang,
     snakecase,
     stringi,
-    tidyr
+    tidyr,
+    vroom
 Suggests: 
     knitr,
     rmarkdown,

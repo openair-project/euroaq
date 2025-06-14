@@ -32,14 +32,14 @@ import_eea_stations <- function(..., .cache = TRUE) {
     utils::download.file(url, path, mode = "wb")
   }
 
-  out <- tibble::tibble(
-    readr::read_csv(
+  out <-
+    suppressWarnings(vroom::vroom(
       path,
       show_col_types = FALSE,
       progress = FALSE,
-      name_repair = snakecase::to_snake_case
-    )
-  )
+      .name_repair = snakecase::to_snake_case
+    )) |>
+    dplyr::tibble()
 
   if (!.cache) {
     unlink(path, force = TRUE)
