@@ -3,7 +3,6 @@
 
 ## usethis namespace: start
 #' @importFrom rlang .data
-#' @importFrom tibble %>%
-#' @importFrom tibble tibble
+#' @importFrom dplyr tibble
 ## usethis namespace: end
 NULL

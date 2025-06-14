@@ -15,17 +15,17 @@
 #' @export
 import_eea_cities <- function(country) {
   request <-
-    httr2::request(base_url = construct_url("City")) %>%
-    httr2::req_method("POST") %>%
+    httr2::request(base_url = construct_url("City")) |>
+    httr2::req_method("POST") |>
     httr2::req_headers(
       "accept" = "text/plain",
       "Content-Type" = "application/json"
-    ) %>%
+    ) |>
     httr2::req_body_json(as.list(country))
 
   response <- httr2::req_perform(request)
 
-  table <- httr2::resp_body_json(response) %>%
+  table <- httr2::resp_body_json(response) |>
     enframe_json()
 
   if (nrow(table) == 0) {
@@ -38,9 +38,9 @@ import_eea_cities <- function(country) {
 #' @rdname eea-metadata
 #' @export
 import_eea_countries <- function() {
-  httr2::request(construct_url("Country")) %>%
-    httr2::req_perform() %>%
-    httr2::resp_body_json() %>%
+  httr2::request(construct_url("Country")) |>
+    httr2::req_perform() |>
+    httr2::resp_body_json() |>
     enframe_json()
 }
 
@@ -48,9 +48,9 @@ import_eea_countries <- function() {
 #' @export
 import_eea_pollutants <- function() {
   pollutants <-
-    httr2::request(construct_url("Pollutant")) %>%
-    httr2::req_perform() %>%
-    httr2::resp_body_json() %>%
+    httr2::request(construct_url("Pollutant")) |>
+    httr2::req_perform() |>
+    httr2::resp_body_json() |>
     enframe_json()
 
   pollutants$url <- pollutants$id

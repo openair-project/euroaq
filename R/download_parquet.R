@@ -209,10 +209,10 @@ parquet_api_response <- function(
   request_body <- append(request_body, list(aggregationType = aggregation_type))
 
   # Send the POST request
-  resp <- httr2::request(construct_url(endpoint)) %>%
-    httr2::req_method("POST") %>%
-    httr2::req_headers("Content-Type" = "application/json") %>%
-    httr2::req_body_json(request_body) %>%
+  resp <- httr2::request(construct_url(endpoint)) |>
+    httr2::req_method("POST") |>
+    httr2::req_headers("Content-Type" = "application/json") |>
+    httr2::req_body_json(request_body) |>
     httr2::req_perform()
 
   return(resp)

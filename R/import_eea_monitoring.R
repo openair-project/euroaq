@@ -34,7 +34,7 @@ import_eea_monitoring <-
     meta <- import_eea_stations()
 
     table <-
-      purrr::map(urls, arrow::read_parquet, .progress = TRUE) %>%
+      purrr::map(urls, arrow::read_parquet, .progress = TRUE) |>
       purrr::list_rbind() |>
       tidyr::separate_wider_delim(
         "Samplingpoint",
@@ -45,9 +45,9 @@ import_eea_monitoring <-
     names(table) <- snakecase::to_snake_case(names(table))
 
     out <-
-      table %>%
-      dplyr::left_join(meta, dplyr::join_by("sampling_point_id")) %>%
-      dplyr::mutate(value = dplyr::na_if(.data$value, -999)) %>%
+      table |>
+      dplyr::left_join(meta, dplyr::join_by("sampling_point_id")) |>
+      dplyr::mutate(value = dplyr::na_if(.data$value, -999)) |>
       dplyr::select(
         "country",
         "air_quality_station_name",

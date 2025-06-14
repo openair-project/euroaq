@@ -11,6 +11,8 @@ Description: Access data from the European Environment Agency's Air
 License: MIT + file LICENSE
 URL: https://github.com/openair-project/euroaq
 BugReports: https://github.com/openair-project/euroaq/issues
+Depends: 
+    R (>= 4.1)
 Imports: 
     arrow,
     dplyr,
@@ -20,7 +22,6 @@ Imports:
     rlang,
     snakecase,
     stringi,
-    tibble,
     tidyr
 Suggests: 
     knitr,
@@ -30,6 +31,6 @@ VignetteBuilder:
     knitr
 Config/Needs/website: rmarkdown
 Encoding: UTF-8
+Language: en-GB
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-Language: en-GB
