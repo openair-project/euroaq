@@ -1,4 +1,33 @@
-url: ~
+url: https://openair-project.github.io/euroaq/
 template:
-  bootstrap: 5
+  package: openairpkgdown
 
+reference:
+- title: Import Air Quality Data
+  desc: >
+    The `import_eea_monitoring()` function is the most convenient method for
+    accessing European air quality data offered by {euroaq}. It deals with
+    importing and cleaning air quality data, and binding on useful metadata
+    columns such as the site name, station type, and location. Nevertheless, it
+    is also very opinionated, so users may wish to use
+    `download_eea_parquet_files()` or similar for greater control.
+  contents:
+  - import_eea_monitoring
+
+- title: Access Metadata
+  desc: >
+    These functions don't import air quality data, but provide useful metadata
+    to assist with the use of `import_eea_monitoring()`.
+  contents:
+  - import_eea_stations
+  - import_eea_cities
+
+- title: API Bindings
+  desc: >
+    These functions provide direct access to the EEA's Air Quality Download
+    Service, found at <https://eeadmz1-downloads-webapp.azurewebsites.net/>.
+    These functions are purposefully conservative with how they handle their
+    returned values data outputs; they are therefore closest to using the API
+    directly, but expect the most from the user.
+  contents:
+  - download_eea_parquet_files

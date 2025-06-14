@@ -6,6 +6,8 @@ enframe_json <- function(x) {
     (function(x) Reduce(rbind, x))() %>%
     tibble::tibble()
 
+  names(x) <- snakecase::to_snake_case(names(x))
+
   return(x)
 }
 

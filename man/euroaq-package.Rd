@@ -8,6 +8,14 @@
 \description{
 Access data from the European Environment Agency's Air Quality Download Service (\url{https://eeadmz1-downloads-webapp.azurewebsites.net/}) by providing convenient R wrappers for all of their API endpoints.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/openair-project/euroaq}
+  \item Report bugs at \url{https://github.com/openair-project/euroaq/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Jack Davison \email{jack.davison@ricardo.com} (\href{https://orcid.org/0000-0003-2653-6615}{ORCID})
 

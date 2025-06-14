@@ -47,8 +47,22 @@ import_eea_countries <- function() {
 #' @rdname eea-metadata
 #' @export
 import_eea_pollutants <- function() {
-  httr2::request(construct_url("Pollutant")) %>%
+  pollutants <-
+    httr2::request(construct_url("Pollutant")) %>%
     httr2::req_perform() %>%
     httr2::resp_body_json() %>%
     enframe_json()
+
+  pollutants$url <- pollutants$id
+  pollutants$id <-
+    stringi::stri_replace(pollutants$id, "", fixed = "http://dd.eionet.europa.eu/vocabulary/aq/pollutant/")
+  pollutants$id <-
+    stringi::stri_replace(pollutants$id, "", fixed = "http://dd.eionet.europa.eu/vocabularyconcept/aq/pollutant/")
+  pollutants$id <-
+    stringi::stri_replace(pollutants$id, "", fixed = "/view")
+  pollutants$id <- as.integer(pollutants$id)
+
+  names(pollutants) <- c("pollutant", "pollutant_id", "vocabulary_url")
+
+  return(pollutants)
 }
