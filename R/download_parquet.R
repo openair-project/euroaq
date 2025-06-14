@@ -34,14 +34,19 @@
 #' @param aggregation_type represents whether the data collected is obtaining
 #'   the values:
 #'
-#'   1. Hourly data.
+#'   1. Hourly data (`"hour"`).
 #'
-#'   2. Daily data.
+#'   2. Daily data (`"day"`).
 #'
 #'   3. Variable intervals (different than the previous observations such as
-#'   weekly, monthly, etc.)
+#'   weekly, monthly, etc.) (`"var"`).
+#'
 #' @param file The file to write the zip file to; should ideally end in
 #'   `".zip"`. Defaults to a temporary file using [tempfile()].
+#'
+#' @param dynamic If `TRUE`, will use a dynamic engine to create a single
+#'   parquet file containing all results rather than downloading many separate
+#'   parquet files.
 #'
 #' @returns One of:
 #'
@@ -67,10 +72,11 @@ download_eea_parquet_files <-
     datetime_end = Sys.Date(),
     dataset = 1L,
     aggregation_type = "hour",
+    dynamic = FALSE,
     file = tempfile(fileext = ".zip")
   ) {
     resp <- parquet_api_response(
-      endpoint = "ParquetFile",
+      endpoint = ifelse(dynamic, "ParquetFile/dynamic", "ParquetFile"),
       countries,
       cities,
       pollutants,
@@ -101,10 +107,15 @@ download_eea_parquet_async <-
     datetime_start = Sys.Date() - 30,
     datetime_end = Sys.Date(),
     dataset = 1L,
-    aggregation_type = "hour"
+    aggregation_type = "hour",
+    dynamic = FALSE
   ) {
     resp <- parquet_api_response(
-      endpoint = "ParquetFile/async",
+      endpoint = ifelse(
+        dynamic,
+        "ParquetFile/async/dynamic",
+        "ParquetFile/async"
+      ),
       countries,
       cities,
       pollutants,
@@ -184,6 +195,8 @@ parquet_api_response <- function(
   datetime_end,
   aggregation_type
 ) {
+  rlang::arg_match(aggregation_type, c("hour", "day", "var"))
+
   # Request body
   request_body <- list(
     countries = as.list(countries),

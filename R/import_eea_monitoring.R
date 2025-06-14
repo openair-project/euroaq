@@ -52,6 +52,7 @@ import_eea_monitoring <-
         "country",
         "air_quality_station_name",
         "sampling_point_id",
+        "agg_type",
         "air_pollutant",
         "start",
         "end",
@@ -66,8 +67,7 @@ import_eea_monitoring <-
         "altitude",
         "altitude_unit",
         "air_quality_station_area",
-        "air_quality_station_type",
-        "duration_unit"
+        "air_quality_station_type"
       )
 
     return(out)

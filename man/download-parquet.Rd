@@ -15,6 +15,7 @@ download_eea_parquet_files(
   datetime_end = Sys.Date(),
   dataset = 1L,
   aggregation_type = "hour",
+  dynamic = FALSE,
   file = tempfile(fileext = ".zip")
 )
 
@@ -25,7 +26,8 @@ download_eea_parquet_async(
   datetime_start = Sys.Date() - 30,
   datetime_end = Sys.Date(),
   dataset = 1L,
-  aggregation_type = "hour"
+  aggregation_type = "hour",
+  dynamic = FALSE
 )
 
 download_eea_parquet_urls(
@@ -77,11 +79,15 @@ Quality Directive 2008/50/EC entered into force
 \item{aggregation_type}{represents whether the data collected is obtaining
 the values:
 \enumerate{
-\item Hourly data.
-\item Daily data.
+\item Hourly data (\code{"hour"}).
+\item Daily data (\code{"day"}).
 \item Variable intervals (different than the previous observations such as
-weekly, monthly, etc.)
+weekly, monthly, etc.) (\code{"var"}).
 }}
+
+\item{dynamic}{If \code{TRUE}, will use a dynamic engine to create a single
+parquet file containing all results rather than downloading many separate
+parquet files.}
 
 \item{file}{The file to write the zip file to; should ideally end in
 \code{".zip"}. Defaults to a temporary file using \code{\link[=tempfile]{tempfile()}}.}
