@@ -1,11 +1,9 @@
 #' Conveniently import European Air Quality data into R
 #'
 #' This function is a convenient way to use EEA AQ monitoring data in an R
-#' session. It calls [download_eea_parquet_urls()], reads each file using
-#' [arrow::read_parquet()], removes unnecessary columns, and merges useful
-#' columns from [import_eea_stations()]. As this function uses
-#' [download_eea_parquet_urls()], users are not able to specify a date range or
-#' aggregation type.
+#' session. It calls [download_eea_parquet_files()], reads each file using
+#' [nanoparquet::read_parquet()], removes unnecessary columns, and merges useful
+#' columns from [import_eea_stations()].
 #'
 #' @returns a [tibble][tibble::tibble-package]
 #'
@@ -19,23 +17,42 @@ import_eea_monitoring <-
     countries = "ES",
     cities = "Madrid",
     pollutants = NULL,
-    dataset = 1L
+    datetime_start = Sys.Date() - 30,
+    datetime_end = Sys.Date(),
+    dataset = 1L,
+    aggregation_type = "hour"
   ) {
-    urls <- download_eea_parquet_urls(
+    # download parquet file
+    zipdest <- download_eea_parquet_files(
       countries,
       cities,
       pollutants,
       dataset,
-      datetime_start = Sys.Date() - 30,
-      datetime_end = Sys.Date(),
-      aggregation_type = "hour"
+      datetime_start = datetime_start,
+      datetime_end = datetime_end,
+      aggregation_type = aggregation_type,
+      dynamic = TRUE
     )
 
+    # get unique dir to extract to
+    tf <- as.numeric(Sys.time())
+    tdr <- tempdir()
+    exdir <- file.path(tdr, tf)
+    dir.create(path = exdir)
+
+    # unzip zip file into dir
+    unzip(zipfile = zipdest, exdir = exdir)
+
+    # list all parquet files in the dir
+    pfiles <- list.files(exdir, recursive = T, pattern = ".parquet")
+
+    # import metadata
     meta <- import_eea_stations()
 
+    # read all parquet files w/ nanoparquet
     table <-
-      purrr::map(urls, arrow::read_parquet, .progress = TRUE) |>
-      purrr::list_rbind() |>
+      lapply(file.path(exdir, pfiles), nanoparquet::read_parquet) |>
+      dplyr::bind_rows() |>
       tidyr::separate_wider_delim(
         "Samplingpoint",
         delim = "/",
@@ -69,7 +86,7 @@ import_eea_monitoring <-
         "area" = "air_quality_station_area",
         "type" = "air_quality_station_type"
       ) |>
-      tidyr::unite(type, area, type, sep = " ")
+      tidyr::unite(col = "type", "area", "type", sep = " ")
 
     return(out)
   }

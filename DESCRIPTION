@@ -14,10 +14,9 @@ BugReports: https://github.com/openair-project/euroaq/issues
 Depends: 
     R (>= 4.1)
 Imports: 
-    arrow,
     dplyr,
     httr2,
-    purrr,
+    nanoparquet,
     rlang,
     snakecase,
     stringi,

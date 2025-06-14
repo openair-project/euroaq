@@ -14,7 +14,7 @@ get_eea_ddb_extension_info <- function() {
     httr2::req_method("POST") |>
     httr2::req_perform() |>
     httr2::resp_body_json(simplifyVector = TRUE) |>
-    tibble::tibble()
+    dplyr::tibble()
 }
 
 #' @rdname api-info
@@ -26,7 +26,7 @@ get_eea_ddb_vars <- function() {
     httr2::req_method("POST") |>
     httr2::req_perform() |>
     httr2::resp_body_json(simplifyVector = TRUE) |>
-    tibble::tibble()
+    dplyr::tibble()
 }
 
 #' @rdname api-info

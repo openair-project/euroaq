@@ -8,7 +8,10 @@ import_eea_monitoring(
   countries = "ES",
   cities = "Madrid",
   pollutants = NULL,
-  dataset = 1L
+  datetime_start = Sys.Date() - 30,
+  datetime_end = Sys.Date(),
+  dataset = 1L,
+  aggregation_type = "hour"
 )
 }
 \arguments{
@@ -24,6 +27,9 @@ given the final file size.}
 \code{\link[=import_eea_pollutants]{import_eea_pollutants()}}. If \code{NULL}, data for all pollutants will be
 imported.}
 
+\item{datetime_start, datetime_end}{Start and end date times, provided as
+\code{POSIXct} or \code{Date} R objects.}
+
 \item{dataset}{The value of the dataset. One of:
 \enumerate{
 \item Unverified data transmitted continuously (Up-To-Date/UTD/E2a) data from
@@ -33,17 +39,24 @@ each year for the previous year.
 \item Historical Airbase data delivered between 2002 and 2012 before Air
 Quality Directive 2008/50/EC entered into force
 }}
+
+\item{aggregation_type}{represents whether the data collected is obtaining
+the values:
+\enumerate{
+\item Hourly data (\code{"hour"}).
+\item Daily data (\code{"day"}).
+\item Variable intervals (different than the previous observations such as
+weekly, monthly, etc.) (\code{"var"}).
+}}
 }
 \value{
 a \link[tibble:tibble-package]{tibble}
 }
 \description{
 This function is a convenient way to use EEA AQ monitoring data in an R
-session. It calls \code{\link[=download_eea_parquet_urls]{download_eea_parquet_urls()}}, reads each file using
-\code{\link[arrow:read_parquet]{arrow::read_parquet()}}, removes unnecessary columns, and merges useful
-columns from \code{\link[=import_eea_stations]{import_eea_stations()}}. As this function uses
-\code{\link[=download_eea_parquet_urls]{download_eea_parquet_urls()}}, users are not able to specify a date range or
-aggregation type.
+session. It calls \code{\link[=download_eea_parquet_files]{download_eea_parquet_files()}}, reads each file using
+\code{\link[nanoparquet:read_parquet]{nanoparquet::read_parquet()}}, removes unnecessary columns, and merges useful
+columns from \code{\link[=import_eea_stations]{import_eea_stations()}}.
 }
 \author{
 Jack Davison
