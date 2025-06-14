@@ -50,25 +50,26 @@ import_eea_monitoring <-
       dplyr::mutate(value = dplyr::na_if(.data$value, -999)) |>
       dplyr::select(
         "country",
-        "air_quality_station_name",
-        "sampling_point_id",
-        "agg_type",
-        "air_pollutant",
-        "start",
-        "end",
+        "network" = "air_quality_network",
+        "site" = "air_quality_station_name",
+        "code" = "sampling_point_id",
+        "aggregation" = "agg_type",
+        "variable" = "air_pollutant",
+        "date" = "start",
+        "date_end" = "end",
         "timezone",
         "value",
         "unit",
         "validity",
         "verification",
-        "air_quality_network",
-        "longitude",
-        "latitude",
+        "lng" = "longitude",
+        "lat" = "latitude",
         "altitude",
         "altitude_unit",
-        "air_quality_station_area",
-        "air_quality_station_type"
-      )
+        "area" = "air_quality_station_area",
+        "type" = "air_quality_station_type"
+      ) |>
+      tidyr::unite(type, area, type, sep = " ")
 
     return(out)
   }
