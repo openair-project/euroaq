@@ -34,59 +34,68 @@ import_eea_monitoring <-
       dynamic = TRUE
     )
 
-    # get unique dir to extract to
-    tf <- as.numeric(Sys.time())
-    tdr <- tempdir()
-    exdir <- file.path(tdr, tf)
-    dir.create(path = exdir)
-
-    # unzip zip file into dir
-    utils::unzip(zipfile = zipdest, exdir = exdir)
-
-    # list all parquet files in the dir
-    pfiles <- list.files(exdir, recursive = T, pattern = ".parquet")
-
     # import metadata
     meta <- import_eea_stations()
 
-    # read all parquet files w/ nanoparquet
-    table <-
-      lapply(file.path(exdir, pfiles), nanoparquet::read_parquet) |>
-      dplyr::bind_rows() |>
-      tidyr::separate_wider_delim(
-        "Samplingpoint",
-        delim = "/",
-        names = c("country_code", "sampling_point_id")
-      )
+    # format data for returning
+    out <- format_monitoring(zipdest, meta)
 
-    names(table) <- snakecase::to_snake_case(names(table))
-
-    out <-
-      table |>
-      dplyr::left_join(meta, dplyr::join_by("sampling_point_id")) |>
-      dplyr::mutate(value = dplyr::na_if(.data$value, -999)) |>
-      dplyr::select(
-        "country",
-        "network" = "air_quality_network",
-        "site" = "air_quality_station_name",
-        "code" = "sampling_point_id",
-        "aggregation" = "agg_type",
-        "variable" = "air_pollutant",
-        "date" = "start",
-        "date_end" = "end",
-        "timezone",
-        "value",
-        "unit",
-        "validity",
-        "verification",
-        "lng" = "longitude",
-        "lat" = "latitude",
-        "altitude",
-        "altitude_unit",
-        "area" = "air_quality_station_area",
-        "type" = "air_quality_station_type"
-      ) |>
-      tidyr::unite(col = "type", "area", "type", sep = " ")
-
+    # return data
     return(out)
   }
+
+#' @noRd
+format_monitoring <- function(zipdest, meta) {
+  # get unique dir to extract to
+  tf <- as.numeric(Sys.time())
+  tdr <- tempdir()
+  exdir <- file.path(tdr, tf)
+  dir.create(path = exdir)
+
+  # unzip zip file into dir
+  utils::unzip(zipfile = zipdest, exdir = exdir)
+
+  # list all parquet files in the dir
+  pfiles <- list.files(exdir, recursive = T, pattern = ".parquet")
+
+  # read all parquet files w/ nanoparquet
+  table <-
+    lapply(file.path(exdir, pfiles), nanoparquet::read_parquet) |>
+    dplyr::bind_rows() |>
+    tidyr::separate_wider_delim(
+      "Samplingpoint",
+      delim = "/",
+      names = c("country_code", "sampling_point_id")
+    )
+
+  names(table) <- snakecase::to_snake_case(names(table))
+
+  out <-
+    table |>
+    dplyr::left_join(meta, dplyr::join_by("sampling_point_id")) |>
+    dplyr::mutate(value = dplyr::na_if(.data$value, -999)) |>
+    dplyr::select(
+      "country",
+      "network" = "air_quality_network",
+      "site" = "air_quality_station_name",
+      "code" = "sampling_point_id",
+      "aggregation" = "agg_type",
+      "variable" = "air_pollutant",
+      "date" = "start",
+      "date_end" = "end",
+      "timezone",
+      "value",
+      "unit",
+      "validity",
+      "verification",
+      "lng" = "longitude",
+      "lat" = "latitude",
+      "altitude",
+      "altitude_unit",
+      "area" = "air_quality_station_area",
+      "type" = "air_quality_station_type"
+    ) |>
+    tidyr::unite(col = "type", "area", "type", sep = " ")
+
+  return(out)
+}
