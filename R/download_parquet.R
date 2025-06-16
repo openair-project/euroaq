@@ -1,4 +1,4 @@
-#' Import measurements from the EEA Air Quality Download Service API
+#' Import sampling data from the EEA Air Quality Download Service API
 #'
 #' These functions are wrappers for the 'ParquetFile' endpoints of the European
 #' Environment Agency's Air Quality Download Service API.
@@ -8,10 +8,11 @@
 #' will be generated. [download_eea_parquet_urls()] returns a list of URLs
 #' corresponding to the filtered parquets. [download_eea_summary()] estimates
 #' the number of files and their size, but does not return any data.
+#' [download_eea_country_city_spos()] returns a list of sampling points meeting
+#' the criteria.
 #'
 #' @param countries A vector of country codes from [import_eea_countries()]. If
-#'   `NULL`, data from all countries will be imported, which is not recommended
-#'   given the final file size.
+#'   `NULL`, data from all countries will be imported.
 #' @param cities A vector of cities in the given `countries` from
 #'   [import_eea_cities()]. If `NULL`, data from all cities in the given
 #'   `countries` will be imported.
@@ -57,6 +58,8 @@
 #' - [download_eea_parquet_urls()]: a character vector of URLS to each parquet file.
 #'
 #' - [download_eea_summary()]: a numeric list, with names `numberFiles` and `size`.
+#'
+#' - [download_eea_country_city_spos()]: a `data.frame` containing the `country` & `sampling_point_id`.
 #'
 #' @author Jack Davison
 #'
@@ -158,6 +161,40 @@ download_eea_parquet_urls <-
 
 #' @rdname download-parquet
 #' @order 4
+#' @export
+download_eea_country_city_spos <-
+  function(
+    countries = "ES",
+    cities = "Madrid",
+    pollutants = NULL,
+    datetime_start = Sys.Date() - 30,
+    datetime_end = Sys.Date(),
+    dataset = 1L,
+    aggregation_type = "hour"
+  ) {
+    resp <- parquet_api_response(
+      endpoint = "City/GetCountryCitySpos",
+      countries,
+      cities,
+      pollutants,
+      dataset,
+      datetime_start,
+      datetime_end,
+      aggregation_type
+    )
+
+    httr2::resp_body_json(resp, simplifyVector = TRUE) |>
+      dplyr::select(-"pk") |>
+      dplyr::tibble() |>
+      tidyr::separate_wider_delim(
+        "localid",
+        delim = "/",
+        names = c("country", "sampling_point_id")
+      )
+  }
+
+#' @rdname download-parquet
+#' @order 5
 #' @export
 download_eea_summary <-
   function(

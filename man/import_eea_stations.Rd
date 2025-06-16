@@ -4,9 +4,16 @@
 \alias{import_eea_stations}
 \title{Import Air Quality Site Metadata from Dataflow D}
 \usage{
-import_eea_stations(..., .cache = TRUE)
+import_eea_stations(countries = NULL, cities = NA, ..., .cache = TRUE)
 }
 \arguments{
+\item{countries}{A vector of country codes from \code{\link[=import_eea_countries]{import_eea_countries()}}. If
+\code{NULL}, data from all countries will be imported.}
+
+\item{cities}{A vector of cities in the given \code{countries} from
+\code{\link[=import_eea_cities]{import_eea_cities()}}. If \code{NULL}, data from all cities in the given
+\code{countries} will be imported.}
+
 \item{...}{Not currently used; reserved for future functionality.}
 
 \item{.cache}{This function works by installing a CSV to a temporary
@@ -18,7 +25,8 @@ every time the function is called.}
 Imports data from the \href{https://discomap.eea.europa.eu/App/AQViewer/index.html?fqn=Airquality_Dissem.b2g.measurements}{data flow D data viewer}.
 This is useful for binding onto datasets obtained using
 \code{\link[=download_eea_parquet_files]{download_eea_parquet_files()}} to assign monitoring data with relevant site
-information.
+information. Metadata can be filtered by providing the \code{countries} and
+\code{cities} arguments.
 }
 \author{
 Jack Davison

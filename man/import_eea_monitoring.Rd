@@ -16,8 +16,7 @@ import_eea_monitoring(
 }
 \arguments{
 \item{countries}{A vector of country codes from \code{\link[=import_eea_countries]{import_eea_countries()}}. If
-\code{NULL}, data from all countries will be imported, which is not recommended
-given the final file size.}
+\code{NULL}, data from all countries will be imported.}
 
 \item{cities}{A vector of cities in the given \code{countries} from
 \code{\link[=import_eea_cities]{import_eea_cities()}}. If \code{NULL}, data from all cities in the given

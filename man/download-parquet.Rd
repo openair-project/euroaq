@@ -4,8 +4,9 @@
 \alias{download_eea_parquet_files}
 \alias{download_eea_parquet_async}
 \alias{download_eea_parquet_urls}
+\alias{download_eea_country_city_spos}
 \alias{download_eea_summary}
-\title{Import measurements from the EEA Air Quality Download Service API}
+\title{Import sampling data from the EEA Air Quality Download Service API}
 \usage{
 download_eea_parquet_files(
   countries = "ES",
@@ -40,6 +41,16 @@ download_eea_parquet_urls(
   aggregation_type = "hour"
 )
 
+download_eea_country_city_spos(
+  countries = "ES",
+  cities = "Madrid",
+  pollutants = NULL,
+  datetime_start = Sys.Date() - 30,
+  datetime_end = Sys.Date(),
+  dataset = 1L,
+  aggregation_type = "hour"
+)
+
 download_eea_summary(
   countries = "ES",
   cities = "Madrid",
@@ -52,8 +63,7 @@ download_eea_summary(
 }
 \arguments{
 \item{countries}{A vector of country codes from \code{\link[=import_eea_countries]{import_eea_countries()}}. If
-\code{NULL}, data from all countries will be imported, which is not recommended
-given the final file size.}
+\code{NULL}, data from all countries will be imported.}
 
 \item{cities}{A vector of cities in the given \code{countries} from
 \code{\link[=import_eea_cities]{import_eea_cities()}}. If \code{NULL}, data from all cities in the given
@@ -99,6 +109,7 @@ One of:
 \item \code{\link[=download_eea_parquet_async]{download_eea_parquet_async()}}: a path to the URL at which the ZIP file will be made available.
 \item \code{\link[=download_eea_parquet_urls]{download_eea_parquet_urls()}}: a character vector of URLS to each parquet file.
 \item \code{\link[=download_eea_summary]{download_eea_summary()}}: a numeric list, with names \code{numberFiles} and \code{size}.
+\item \code{\link[=download_eea_country_city_spos]{download_eea_country_city_spos()}}: a \code{data.frame} containing the \code{country} & \code{sampling_point_id}.
 }
 }
 \description{
@@ -110,6 +121,8 @@ background; the function returns an URL in which the file to be downloaded
 will be generated. \code{\link[=download_eea_parquet_urls]{download_eea_parquet_urls()}} returns a list of URLs
 corresponding to the filtered parquets. \code{\link[=download_eea_summary]{download_eea_summary()}} estimates
 the number of files and their size, but does not return any data.
+\code{\link[=download_eea_country_city_spos]{download_eea_country_city_spos()}} returns a list of sampling points meeting
+the criteria.
 }
 \author{
 Jack Davison

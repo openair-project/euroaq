@@ -4,7 +4,10 @@
 #' viewer](https://discomap.eea.europa.eu/App/AQViewer/index.html?fqn=Airquality_Dissem.b2g.measurements).
 #' This is useful for binding onto datasets obtained using
 #' [download_eea_parquet_files()] to assign monitoring data with relevant site
-#' information.
+#' information. Metadata can be filtered by providing the `countries` and
+#' `cities` arguments.
+#'
+#' @inheritParams download_eea_parquet_urls
 #'
 #' @param ... Not currently used; reserved for future functionality.
 #'
@@ -16,7 +19,12 @@
 #' @author Jack Davison
 #'
 #' @export
-import_eea_stations <- function(..., .cache = TRUE) {
+import_eea_stations <- function(
+  countries = NULL,
+  cities = NA,
+  ...,
+  .cache = TRUE
+) {
   td <- tempdir()
   filename <- "euroaq.dataflowd.csv"
 
@@ -40,6 +48,21 @@ import_eea_stations <- function(..., .cache = TRUE) {
       .name_repair = snakecase::to_snake_case
     )) |>
     dplyr::tibble()
+
+  if (!is.null(countries)) {
+    spos <-
+      download_eea_country_city_spos(
+        countries = countries,
+        cities = cities,
+        pollutants = NULL,
+        datetime_start = NULL,
+        datetime_end = NULL,
+        dataset = 1,
+        aggregation_type = "hour"
+      )
+
+    out <- dplyr::semi_join(out, spos, dplyr::join_by("sampling_point_id"))
+  }
 
   if (!.cache) {
     unlink(path, force = TRUE)
