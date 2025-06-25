@@ -83,11 +83,11 @@ the criteria.</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">download_eea_parquet_files</span><span class="op">(</span></span>
-<span>  countries <span class="op">=</span> <span class="st">"ES"</span>,</span>
-<span>  cities <span class="op">=</span> <span class="st">"Madrid"</span>,</span>
+<span>  countries <span class="op">=</span> <span class="st">"AD"</span>,</span>
+<span>  cities <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pollutants <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  datetime_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">30</span>,</span>
-<span>  datetime_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  datetime_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y"</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>,</span>
+<span>  datetime_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  dataset <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  aggregation_type <span class="op">=</span> <span class="st">"hour"</span>,</span>
 <span>  dynamic <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -95,42 +95,42 @@ the criteria.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">download_eea_parquet_async</span><span class="op">(</span></span>
-<span>  countries <span class="op">=</span> <span class="st">"ES"</span>,</span>
-<span>  cities <span class="op">=</span> <span class="st">"Madrid"</span>,</span>
+<span>  countries <span class="op">=</span> <span class="st">"AD"</span>,</span>
+<span>  cities <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pollutants <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  datetime_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">30</span>,</span>
-<span>  datetime_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  datetime_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y"</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>,</span>
+<span>  datetime_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  dataset <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  aggregation_type <span class="op">=</span> <span class="st">"hour"</span>,</span>
 <span>  dynamic <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">download_eea_parquet_urls</span><span class="op">(</span></span>
-<span>  countries <span class="op">=</span> <span class="st">"ES"</span>,</span>
-<span>  cities <span class="op">=</span> <span class="st">"Madrid"</span>,</span>
+<span>  countries <span class="op">=</span> <span class="st">"AD"</span>,</span>
+<span>  cities <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pollutants <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  datetime_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">30</span>,</span>
-<span>  datetime_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  datetime_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y"</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>,</span>
+<span>  datetime_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  dataset <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  aggregation_type <span class="op">=</span> <span class="st">"hour"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">download_eea_country_city_spos</span><span class="op">(</span></span>
-<span>  countries <span class="op">=</span> <span class="st">"ES"</span>,</span>
-<span>  cities <span class="op">=</span> <span class="st">"Madrid"</span>,</span>
+<span>  countries <span class="op">=</span> <span class="st">"AD"</span>,</span>
+<span>  cities <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pollutants <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  datetime_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">30</span>,</span>
-<span>  datetime_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  datetime_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y"</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>,</span>
+<span>  datetime_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  dataset <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  aggregation_type <span class="op">=</span> <span class="st">"hour"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">download_eea_summary</span><span class="op">(</span></span>
-<span>  countries <span class="op">=</span> <span class="st">"ES"</span>,</span>
-<span>  cities <span class="op">=</span> <span class="st">"Madrid"</span>,</span>
+<span>  countries <span class="op">=</span> <span class="st">"AD"</span>,</span>
+<span>  cities <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pollutants <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  datetime_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">30</span>,</span>
-<span>  datetime_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  datetime_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y"</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>,</span>
+<span>  datetime_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  dataset <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  aggregation_type <span class="op">=</span> <span class="st">"hour"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -159,7 +159,11 @@ imported.</p></dd>
 
 <dt id="arg-datetime-start-datetime-end">datetime_start, datetime_end<a class="anchor" aria-label="anchor" href="#arg-datetime-start-datetime-end"></a></dt>
 <dd><p>Start and end date times, provided as
-<code>POSIXct</code> or <code>Date</code> R objects.</p></dd>
+<code>POSIXct</code>, <code>Date</code> or <code>integer</code> R objects. If an <code>integer</code> is provided, this
+should represent the year of interest; for <code>datetime_start</code> this will be
+represent the first hour of the year and for <code>datetime_end</code> it will
+represent the last hour of the year, meaning providing the same integer to
+each will return a year of data.</p></dd>
 
 
 <dt id="arg-dataset">dataset<a class="anchor" aria-label="anchor" href="#arg-dataset"></a></dt>
