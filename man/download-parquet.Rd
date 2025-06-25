@@ -16,6 +16,7 @@ download_eea_parquet_files(
   datetime_end = as.integer(format(Sys.Date(), "\%Y")),
   dataset = 1L,
   aggregation_type = "hour",
+  email = NULL,
   dynamic = FALSE,
   file = tempfile(fileext = ".zip")
 )
@@ -28,6 +29,7 @@ download_eea_parquet_async(
   datetime_end = as.integer(format(Sys.Date(), "\%Y")),
   dataset = 1L,
   aggregation_type = "hour",
+  email = NULL,
   dynamic = FALSE
 )
 
@@ -38,7 +40,8 @@ download_eea_parquet_urls(
   datetime_start = as.integer(format(Sys.Date(), "\%Y")) - 1,
   datetime_end = as.integer(format(Sys.Date(), "\%Y")),
   dataset = 1L,
-  aggregation_type = "hour"
+  aggregation_type = "hour",
+  email = NULL
 )
 
 download_eea_country_city_spos(
@@ -48,7 +51,8 @@ download_eea_country_city_spos(
   datetime_start = as.integer(format(Sys.Date(), "\%Y")) - 1,
   datetime_end = as.integer(format(Sys.Date(), "\%Y")),
   dataset = 1L,
-  aggregation_type = "hour"
+  aggregation_type = "hour",
+  email = NULL
 )
 
 download_eea_summary(
@@ -58,7 +62,8 @@ download_eea_summary(
   datetime_start = as.integer(format(Sys.Date(), "\%Y")) - 1,
   datetime_end = as.integer(format(Sys.Date(), "\%Y")),
   dataset = 1L,
-  aggregation_type = "hour"
+  aggregation_type = "hour",
+  email = NULL
 )
 }
 \arguments{
@@ -98,6 +103,9 @@ the values:
 \item Variable intervals (different than the previous observations such as
 weekly, monthly, etc.) (\code{"var"}).
 }}
+
+\item{email}{Optional field to identify the user who make the download and
+improve the communication if problems are detected.}
 
 \item{dynamic}{If \code{TRUE}, will use a dynamic engine to create a single
 parquet file containing all results rather than downloading many separate

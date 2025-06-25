@@ -53,6 +53,9 @@
 #'   parquet file containing all results rather than downloading many separate
 #'   parquet files.
 #'
+#' @param email Optional field to identify the user who make the download and
+#'   improve the communication if problems are detected.
+#'
 #' @returns One of:
 #'
 #' - [download_eea_parquet_files()]: the `file` argument - the path to the downloaded ZIP file.
@@ -79,6 +82,7 @@ download_eea_parquet_files <-
     datetime_end = as.integer(format(Sys.Date(), "%Y")),
     dataset = 1L,
     aggregation_type = "hour",
+    email = NULL,
     dynamic = FALSE,
     file = tempfile(fileext = ".zip")
   ) {
@@ -90,7 +94,8 @@ download_eea_parquet_files <-
       dataset,
       datetime_start,
       datetime_end,
-      aggregation_type
+      aggregation_type,
+      email
     )
 
     # API URL and endpoint
@@ -115,6 +120,7 @@ download_eea_parquet_async <-
     datetime_end = as.integer(format(Sys.Date(), "%Y")),
     dataset = 1L,
     aggregation_type = "hour",
+    email = NULL,
     dynamic = FALSE
   ) {
     resp <- parquet_api_response(
@@ -129,7 +135,8 @@ download_eea_parquet_async <-
       dataset,
       datetime_start,
       datetime_end,
-      aggregation_type
+      aggregation_type,
+      email
     )
 
     return(httr2::resp_body_string(resp))
@@ -147,7 +154,8 @@ download_eea_parquet_urls <-
     datetime_start = as.integer(format(Sys.Date(), "%Y")) - 1,
     datetime_end = as.integer(format(Sys.Date(), "%Y")),
     dataset = 1L,
-    aggregation_type = "hour"
+    aggregation_type = "hour",
+    email = NULL
   ) {
     resp <- parquet_api_response(
       endpoint = "/ParquetFile/urls",
@@ -157,7 +165,8 @@ download_eea_parquet_urls <-
       dataset,
       datetime_start,
       datetime_end,
-      aggregation_type
+      aggregation_type,
+      email
     )
 
     utils::read.csv(text = httr2::resp_body_string(resp))$ParquetFileUrl
@@ -174,7 +183,8 @@ download_eea_country_city_spos <-
     datetime_start = as.integer(format(Sys.Date(), "%Y")) - 1,
     datetime_end = as.integer(format(Sys.Date(), "%Y")),
     dataset = 1L,
-    aggregation_type = "hour"
+    aggregation_type = "hour",
+    email = NULL
   ) {
     resp <- parquet_api_response(
       endpoint = "City/GetCountryCitySpos",
@@ -184,7 +194,8 @@ download_eea_country_city_spos <-
       dataset,
       datetime_start,
       datetime_end,
-      aggregation_type
+      aggregation_type,
+      email
     )
 
     httr2::resp_body_json(resp, simplifyVector = TRUE) |>
@@ -208,7 +219,8 @@ download_eea_summary <-
     datetime_start = as.integer(format(Sys.Date(), "%Y")) - 1,
     datetime_end = as.integer(format(Sys.Date(), "%Y")),
     dataset = 1L,
-    aggregation_type = "hour"
+    aggregation_type = "hour",
+    email = NULL
   ) {
     resp <- parquet_api_response(
       endpoint = "DownloadSummary",
@@ -218,7 +230,8 @@ download_eea_summary <-
       dataset,
       datetime_start,
       datetime_end,
-      aggregation_type
+      aggregation_type,
+      email
     )
 
     httr2::resp_body_json(resp)
@@ -234,7 +247,8 @@ parquet_api_response <- function(
   dataset,
   datetime_start,
   datetime_end,
-  aggregation_type
+  aggregation_type,
+  email
 ) {
   rlang::arg_match(aggregation_type, c("hour", "day", "var"))
 
@@ -261,6 +275,13 @@ parquet_api_response <- function(
   }
 
   request_body <- append(request_body, list(aggregationType = aggregation_type))
+
+  if (!is.null(email)) {
+    request_body <- append(
+      request_body,
+      list(email = email)
+    )
+  }
 
   # Send the POST request
   resp <- httr2::request(construct_url(endpoint)) |>
