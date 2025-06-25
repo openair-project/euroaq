@@ -14,8 +14,8 @@
 #' @export
 import_eea_monitoring <-
   function(
-    countries = "ES",
-    cities = "Madrid",
+    countries = "AD",
+    cities = NULL,
     pollutants = NULL,
     datetime_start = Sys.Date() - 30,
     datetime_end = Sys.Date(),

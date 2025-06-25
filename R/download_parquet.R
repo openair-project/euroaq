@@ -68,8 +68,8 @@
 #' @export
 download_eea_parquet_files <-
   function(
-    countries = "ES",
-    cities = "Madrid",
+    countries = "AD",
+    cities = NULL,
     pollutants = NULL,
     datetime_start = Sys.Date() - 30,
     datetime_end = Sys.Date(),
@@ -104,8 +104,8 @@ download_eea_parquet_files <-
 #' @export
 download_eea_parquet_async <-
   function(
-    countries = "ES",
-    cities = "Madrid",
+    countries = "AD",
+    cities = NULL,
     pollutants = NULL,
     datetime_start = Sys.Date() - 30,
     datetime_end = Sys.Date(),
@@ -137,8 +137,8 @@ download_eea_parquet_async <-
 #' @export
 download_eea_parquet_urls <-
   function(
-    countries = "ES",
-    cities = "Madrid",
+    countries = "AD",
+    cities = NULL,
     pollutants = NULL,
     datetime_start = Sys.Date() - 30,
     datetime_end = Sys.Date(),
@@ -164,8 +164,8 @@ download_eea_parquet_urls <-
 #' @export
 download_eea_country_city_spos <-
   function(
-    countries = "ES",
-    cities = "Madrid",
+    countries = "AD",
+    cities = NULL,
     pollutants = NULL,
     datetime_start = Sys.Date() - 30,
     datetime_end = Sys.Date(),
@@ -198,8 +198,8 @@ download_eea_country_city_spos <-
 #' @export
 download_eea_summary <-
   function(
-    countries = "ES",
-    cities = "Madrid",
+    countries = "AD",
+    cities = NULL,
     pollutants = NULL,
     datetime_start = Sys.Date() - 30,
     datetime_end = Sys.Date(),

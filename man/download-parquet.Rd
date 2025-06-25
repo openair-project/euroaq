@@ -9,8 +9,8 @@
 \title{Import sampling data from the EEA Air Quality Download Service API}
 \usage{
 download_eea_parquet_files(
-  countries = "ES",
-  cities = "Madrid",
+  countries = "AD",
+  cities = NULL,
   pollutants = NULL,
   datetime_start = Sys.Date() - 30,
   datetime_end = Sys.Date(),
@@ -21,8 +21,8 @@ download_eea_parquet_files(
 )
 
 download_eea_parquet_async(
-  countries = "ES",
-  cities = "Madrid",
+  countries = "AD",
+  cities = NULL,
   pollutants = NULL,
   datetime_start = Sys.Date() - 30,
   datetime_end = Sys.Date(),
@@ -32,8 +32,8 @@ download_eea_parquet_async(
 )
 
 download_eea_parquet_urls(
-  countries = "ES",
-  cities = "Madrid",
+  countries = "AD",
+  cities = NULL,
   pollutants = NULL,
   datetime_start = Sys.Date() - 30,
   datetime_end = Sys.Date(),
@@ -42,8 +42,8 @@ download_eea_parquet_urls(
 )
 
 download_eea_country_city_spos(
-  countries = "ES",
-  cities = "Madrid",
+  countries = "AD",
+  cities = NULL,
   pollutants = NULL,
   datetime_start = Sys.Date() - 30,
   datetime_end = Sys.Date(),
@@ -52,8 +52,8 @@ download_eea_country_city_spos(
 )
 
 download_eea_summary(
-  countries = "ES",
-  cities = "Madrid",
+  countries = "AD",
+  cities = NULL,
   pollutants = NULL,
   datetime_start = Sys.Date() - 30,
   datetime_end = Sys.Date(),
