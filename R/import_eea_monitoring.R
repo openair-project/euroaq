@@ -17,8 +17,8 @@ import_eea_monitoring <-
     countries = "AD",
     cities = NULL,
     pollutants = NULL,
-    datetime_start = Sys.Date() - 30,
-    datetime_end = Sys.Date(),
+    datetime_start = as.integer(format(Sys.Date(), "%Y")) - 1,
+    datetime_end = as.integer(format(Sys.Date(), "%Y")),
     dataset = 1L,
     aggregation_type = "hour"
   ) {

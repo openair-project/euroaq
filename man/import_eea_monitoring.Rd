@@ -8,8 +8,8 @@ import_eea_monitoring(
   countries = "AD",
   cities = NULL,
   pollutants = NULL,
-  datetime_start = Sys.Date() - 30,
-  datetime_end = Sys.Date(),
+  datetime_start = as.integer(format(Sys.Date(), "\%Y")) - 1,
+  datetime_end = as.integer(format(Sys.Date(), "\%Y")),
   dataset = 1L,
   aggregation_type = "hour"
 )
@@ -27,7 +27,11 @@ import_eea_monitoring(
 imported.}
 
 \item{datetime_start, datetime_end}{Start and end date times, provided as
-\code{POSIXct} or \code{Date} R objects.}
+\code{POSIXct}, \code{Date} or \code{integer} R objects. If an \code{integer} is provided, this
+should represent the year of interest; for \code{datetime_start} this will be
+represent the first hour of the year and for \code{datetime_end} it will
+represent the last hour of the year, meaning providing the same integer to
+each will return a year of data.}
 
 \item{dataset}{The value of the dataset. One of:
 \enumerate{

@@ -20,7 +20,11 @@
 #'   [import_eea_pollutants()]. If `NULL`, data for all pollutants will be
 #'   imported.
 #' @param datetime_start,datetime_end Start and end date times, provided as
-#'   `POSIXct` or `Date` R objects.
+#'   `POSIXct`, `Date` or `integer` R objects. If an `integer` is provided, this
+#'   should represent the year of interest; for `datetime_start` this will be
+#'   represent the first hour of the year and for `datetime_end` it will
+#'   represent the last hour of the year, meaning providing the same integer to
+#'   each will return a year of data.
 #' @param dataset The value of the dataset. One of:
 #'
 #'   1. Unverified data transmitted continuously (Up-To-Date/UTD/E2a) data from
@@ -71,8 +75,8 @@ download_eea_parquet_files <-
     countries = "AD",
     cities = NULL,
     pollutants = NULL,
-    datetime_start = Sys.Date() - 30,
-    datetime_end = Sys.Date(),
+    datetime_start = as.integer(format(Sys.Date(), "%Y")) - 1,
+    datetime_end = as.integer(format(Sys.Date(), "%Y")),
     dataset = 1L,
     aggregation_type = "hour",
     dynamic = FALSE,
@@ -107,8 +111,8 @@ download_eea_parquet_async <-
     countries = "AD",
     cities = NULL,
     pollutants = NULL,
-    datetime_start = Sys.Date() - 30,
-    datetime_end = Sys.Date(),
+    datetime_start = as.integer(format(Sys.Date(), "%Y")) - 1,
+    datetime_end = as.integer(format(Sys.Date(), "%Y")),
     dataset = 1L,
     aggregation_type = "hour",
     dynamic = FALSE
@@ -140,8 +144,8 @@ download_eea_parquet_urls <-
     countries = "AD",
     cities = NULL,
     pollutants = NULL,
-    datetime_start = Sys.Date() - 30,
-    datetime_end = Sys.Date(),
+    datetime_start = as.integer(format(Sys.Date(), "%Y")) - 1,
+    datetime_end = as.integer(format(Sys.Date(), "%Y")),
     dataset = 1L,
     aggregation_type = "hour"
   ) {
@@ -167,8 +171,8 @@ download_eea_country_city_spos <-
     countries = "AD",
     cities = NULL,
     pollutants = NULL,
-    datetime_start = Sys.Date() - 30,
-    datetime_end = Sys.Date(),
+    datetime_start = as.integer(format(Sys.Date(), "%Y")) - 1,
+    datetime_end = as.integer(format(Sys.Date(), "%Y")),
     dataset = 1L,
     aggregation_type = "hour"
   ) {
@@ -201,8 +205,8 @@ download_eea_summary <-
     countries = "AD",
     cities = NULL,
     pollutants = NULL,
-    datetime_start = Sys.Date() - 30,
-    datetime_end = Sys.Date(),
+    datetime_start = as.integer(format(Sys.Date(), "%Y")) - 1,
+    datetime_end = as.integer(format(Sys.Date(), "%Y")),
     dataset = 1L,
     aggregation_type = "hour"
   ) {
@@ -245,14 +249,14 @@ parquet_api_response <- function(
   if (!is.null(datetime_start)) {
     request_body <- append(
       request_body,
-      list(dateTimeStart = format_date_for_api(datetime_start))
+      list(dateTimeStart = format_date_for_api(datetime_start, type = "start"))
     )
   }
 
   if (!is.null(datetime_end)) {
     request_body <- append(
       request_body,
-      list(dateTimeEnd = format_date_for_api(datetime_end))
+      list(dateTimeEnd = format_date_for_api(datetime_end, type = "end"))
     )
   }
 
