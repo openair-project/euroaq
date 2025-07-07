@@ -9,7 +9,8 @@ Description: Access data from the European Environment Agency's Air
     (<https://eeadmz1-downloads-webapp.azurewebsites.net/>) by providing
     convenient R wrappers for all of their API endpoints.
 License: MIT + file LICENSE
-URL: https://github.com/openair-project/euroaq
+URL: https://github.com/openair-project/euroaq,
+    https://openair-project.github.io/euroaq/
 BugReports: https://github.com/openair-project/euroaq/issues
 Depends: 
     R (>= 4.1)
