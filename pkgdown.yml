@@ -3,7 +3,7 @@ pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   euroaq: euroaq.html
-last_built: 2025-07-24T07:26Z
+last_built: 2025-07-24T07:46Z
 urls:
   reference: https://openair-project.github.io/euroaq/reference
   article: https://openair-project.github.io/euroaq/articles
