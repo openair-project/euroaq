@@ -46,10 +46,10 @@ It is recommended that users provide at least one country, as leaving this as `N
 
 For more flexible data access, including asynchronous data access, there are three options, mirroring the three options outlined in <https://eeadmz1-downloads-webapp.azurewebsites.net/content/documentation/How_To_Downloads.pdf>. Each of these has options to control where data is imported from (countries & cities), specific pollutants to import, and the datasets of origin. Two of the three also allow for users to specify a start and end date, as well as an aggregation type.
 
-- `download_eea_parquet_files()` will download a zip folder of parquet files to a user-specified file, returning the file path.
+- `get_eea_parquet_files()` will download a zip folder of parquet files to a user-specified file, returning the file path.
 
 ```r
-download_eea_parquet_files(file = "mydata.zip")
+get_eea_parquet_files(file = "mydata.zip")
 
 zip::unzip(zipfile = "mydata.zip", exdir = "parquets")
 
@@ -60,10 +60,10 @@ tables <- purrr::map(.x = paths, .f = arrow::read_parquet)
 aqdata <- dplyr::bind_rows(tables)
 ```
 
-- `download_eea_parquet_async()` will initiate the construction of a zip folder of parquet files and returns a URL at which a zip file will be eventually available.
+- `get_eea_parquet_async()` will initiate the construction of a zip folder of parquet files and returns a URL at which a zip file will be eventually available.
 
 ```r
-zippath <- download_eea_parquet_async()
+zippath <- get_eea_parquet_async()
 
 # wait for zip to be populated
 
@@ -78,10 +78,10 @@ tables <- purrr::map(.x = paths, .f = arrow::read_parquet)
 aqdata <- dplyr::bind_rows(tables)
 ```
 
-- `download_eea_parquet_urls()` will return an R character vector of a list of URLs at which individual parquet files can be found. This function ignores the datetime and aggregation type arguments.
+- `get_eea_parquet_urls()` will return an R character vector of a list of URLs at which individual parquet files can be found. This function ignores the datetime and aggregation type arguments.
 
 ```r
-urls <- download_eea_parquet_urls()
+urls <- get_eea_parquet_urls()
 
 tables <- purrr::map(.x = urls, .f = arrow::read_parquet)
 

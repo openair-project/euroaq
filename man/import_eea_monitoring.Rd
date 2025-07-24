@@ -57,7 +57,7 @@ a \link[tibble:tibble-package]{tibble}
 }
 \description{
 This function is a convenient way to use EEA AQ monitoring data in an R
-session. It calls \code{\link[=download_eea_parquet_files]{download_eea_parquet_files()}}, reads each file using
+session. It calls \code{\link[=get_eea_parquet_files]{get_eea_parquet_files()}}, reads each file using
 \code{\link[nanoparquet:read_parquet]{nanoparquet::read_parquet()}}, removes unnecessary columns, and merges useful
 columns from \code{\link[=import_eea_stations]{import_eea_stations()}}.
 }

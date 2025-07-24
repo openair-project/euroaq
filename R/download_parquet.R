@@ -2,14 +2,16 @@
 #'
 #' These functions are wrappers for the 'ParquetFile' endpoints of the European
 #' Environment Agency's Air Quality Download Service API.
-#' [download_eea_parquet_files()] download zip file with all the filtered
-#' parquet files in it. [download_eea_parquet_async()] downloads this in the
-#' background; the function returns an URL in which the file to be downloaded
-#' will be generated. [download_eea_parquet_urls()] returns a list of URLs
-#' corresponding to the filtered parquets. [download_eea_summary()] estimates
-#' the number of files and their size, but does not return any data.
-#' [download_eea_country_city_spos()] returns a list of sampling points meeting
-#' the criteria.
+#' - [get_eea_parquet_files()] downloads a zip file with all the filtered parquet
+#' files in it.
+#' - [get_eea_parquet_async()] prepares this in the background; the
+#' function returns an URL in which the file to be downloaded will be generated.
+#' - [get_eea_parquet_urls()] returns a list of URLs corresponding to the filtered
+#' parquets.
+#' - [get_eea_summary()] estimates the number of files and their size,
+#' but does not return any data.
+#' - [get_eea_country_city_spos()] returns a list of
+#' sampling points meeting the criteria.
 #'
 #' @param countries A vector of country codes from [import_eea_countries()]. If
 #'   `NULL`, data from all countries will be imported.
@@ -58,22 +60,22 @@
 #'
 #' @returns One of:
 #'
-#' - [download_eea_parquet_files()]: the `file` argument - the path to the downloaded ZIP file.
+#' - [get_eea_parquet_files()]: the `file` argument - the path to the downloaded ZIP file.
 #'
-#' - [download_eea_parquet_async()]: a path to the URL at which the ZIP file will be made available.
+#' - [get_eea_parquet_async()]: a path to the URL at which the ZIP file will be made available.
 #'
-#' - [download_eea_parquet_urls()]: a character vector of URLS to each parquet file.
+#' - [get_eea_parquet_urls()]: a character vector of URLS to each parquet file.
 #'
-#' - [download_eea_summary()]: a numeric list, with names `numberFiles` and `size`.
+#' - [get_eea_summary()]: a numeric list, with names `numberFiles` and `size`.
 #'
-#' - [download_eea_country_city_spos()]: a `data.frame` containing the `country` & `sampling_point_id`.
+#' - [get_eea_country_city_spos()]: a `data.frame` containing the `country` & `sampling_point_id`.
 #'
 #' @author Jack Davison
 #'
 #' @rdname download-parquet
 #' @order 1
 #' @export
-download_eea_parquet_files <-
+get_eea_parquet_files <-
   function(
     countries = "AD",
     cities = NULL,
@@ -111,7 +113,7 @@ download_eea_parquet_files <-
 #' @rdname download-parquet
 #' @order 2
 #' @export
-download_eea_parquet_async <-
+get_eea_parquet_async <-
   function(
     countries = "AD",
     cities = NULL,
@@ -146,7 +148,7 @@ download_eea_parquet_async <-
 #' @rdname download-parquet
 #' @order 3
 #' @export
-download_eea_parquet_urls <-
+get_eea_parquet_urls <-
   function(
     countries = "AD",
     cities = NULL,
@@ -175,7 +177,7 @@ download_eea_parquet_urls <-
 #' @rdname download-parquet
 #' @order 4
 #' @export
-download_eea_country_city_spos <-
+get_eea_country_city_spos <-
   function(
     countries = "AD",
     cities = NULL,
@@ -211,7 +213,7 @@ download_eea_country_city_spos <-
 #' @rdname download-parquet
 #' @order 5
 #' @export
-download_eea_summary <-
+get_eea_summary <-
   function(
     countries = "AD",
     cities = NULL,

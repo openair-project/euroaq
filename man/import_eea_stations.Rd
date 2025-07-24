@@ -24,7 +24,7 @@ every time the function is called.}
 \description{
 Imports data from the \href{https://discomap.eea.europa.eu/App/AQViewer/index.html?fqn=Airquality_Dissem.b2g.measurements}{data flow D data viewer}.
 This is useful for binding onto datasets obtained using
-\code{\link[=download_eea_parquet_files]{download_eea_parquet_files()}} to assign monitoring data with relevant site
+\code{\link[=get_eea_parquet_files]{get_eea_parquet_files()}} to assign monitoring data with relevant site
 information. Metadata can be filtered by providing the \code{countries} and
 \code{cities} arguments.
 }

@@ -3,11 +3,11 @@
 #' Imports data from the [data flow D data
 #' viewer](https://discomap.eea.europa.eu/App/AQViewer/index.html?fqn=Airquality_Dissem.b2g.measurements).
 #' This is useful for binding onto datasets obtained using
-#' [download_eea_parquet_files()] to assign monitoring data with relevant site
+#' [get_eea_parquet_files()] to assign monitoring data with relevant site
 #' information. Metadata can be filtered by providing the `countries` and
 #' `cities` arguments.
 #'
-#' @inheritParams download_eea_parquet_urls
+#' @inheritParams get_eea_parquet_urls
 #'
 #' @param ... Not currently used; reserved for future functionality.
 #'
@@ -51,7 +51,7 @@ import_eea_stations <- function(
 
   if (!is.null(countries)) {
     spos <-
-      download_eea_country_city_spos(
+      get_eea_country_city_spos(
         countries = countries,
         cities = cities,
         pollutants = NULL,

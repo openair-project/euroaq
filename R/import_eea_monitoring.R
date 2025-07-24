@@ -1,13 +1,13 @@
 #' Conveniently import European Air Quality data into R
 #'
 #' This function is a convenient way to use EEA AQ monitoring data in an R
-#' session. It calls [download_eea_parquet_files()], reads each file using
+#' session. It calls [get_eea_parquet_files()], reads each file using
 #' [nanoparquet::read_parquet()], removes unnecessary columns, and merges useful
 #' columns from [import_eea_stations()].
 #'
 #' @returns a [tibble][tibble::tibble-package]
 #'
-#' @inheritParams download_eea_parquet_urls
+#' @inheritParams get_eea_parquet_urls
 #'
 #' @author Jack Davison
 #'
@@ -23,7 +23,7 @@ import_eea_monitoring <-
     aggregation_type = "hour"
   ) {
     # download parquet file
-    zipdest <- download_eea_parquet_files(
+    zipdest <- get_eea_parquet_files(
       countries,
       cities,
       pollutants,

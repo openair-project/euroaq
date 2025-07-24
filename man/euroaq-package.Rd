@@ -12,6 +12,7 @@ Access data from the European Environment Agency's Air Quality Download Service 
 Useful links:
 \itemize{
   \item \url{https://github.com/openair-project/euroaq}
+  \item \url{https://openair-project.github.io/euroaq/}
   \item Report bugs at \url{https://github.com/openair-project/euroaq/issues}
 }
 
