@@ -30,7 +30,7 @@ If you’ve found a bug, please file an issue that illustrates the bug with a mi
 
 ### Code style
 
-*   Care should be taken such that new code follows a style similar to the rest of the `{openair}` family. The most user-facing example of this is that exported functions should be written in "lowerCamelCase" (i.e., `polarPlot()` rather than `polar_plot()`).
+*  Care should be taken such that new code follows a style similar to the rest of the `{openair}` family.
 
 *  We use [roxygen2](https://cran.r-project.org/package=roxygen2), with [Markdown syntax](https://cran.r-project.org/web/packages/roxygen2/vignettes/rd-formatting.html), for documentation.
 
