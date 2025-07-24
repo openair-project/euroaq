@@ -136,11 +136,11 @@ datasets of origin. Two of the three also allow for users to specify a
 start and end date, as well as an aggregation type.</p>
 <ul>
 <li>
-<code><a href="../reference/download-parquet.html">download_eea_parquet_files()</a></code> will download a zip folder
-of parquet files to a user-specified file, returning the file path.</li>
+<code><a href="../reference/download-parquet.html">get_eea_parquet_files()</a></code> will download a zip folder of
+parquet files to a user-specified file, returning the file path.</li>
 </ul>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/download-parquet.html">download_eea_parquet_files</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">"mydata.zip"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/download-parquet.html">get_eea_parquet_files</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">"mydata.zip"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">zip</span><span class="fu">::</span><span class="fu">unzip</span><span class="op">(</span>zipfile <span class="op">=</span> <span class="st">"mydata.zip"</span>, exdir <span class="op">=</span> <span class="st">"parquets"</span><span class="op">)</span></span>
 <span></span>
@@ -151,12 +151,12 @@ of parquet files to a user-specified file, returning the file path.</li>
 <span><span class="va">aqdata</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">tables</span><span class="op">)</span></span></code></pre></div>
 <ul>
 <li>
-<code><a href="../reference/download-parquet.html">download_eea_parquet_async()</a></code> will initiate the
-construction of a zip folder of parquet files and returns a URL at which
-a zip file will be eventually available.</li>
+<code><a href="../reference/download-parquet.html">get_eea_parquet_async()</a></code> will initiate the construction
+of a zip folder of parquet files and returns a URL at which a zip file
+will be eventually available.</li>
 </ul>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">zippath</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/download-parquet.html">download_eea_parquet_async</a></span><span class="op">(</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">zippath</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/download-parquet.html">get_eea_parquet_async</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># wait for zip to be populated</span></span>
 <span></span>
@@ -171,12 +171,12 @@ a zip file will be eventually available.</li>
 <span><span class="va">aqdata</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">tables</span><span class="op">)</span></span></code></pre></div>
 <ul>
 <li>
-<code><a href="../reference/download-parquet.html">download_eea_parquet_urls()</a></code> will return an R character
+<code><a href="../reference/download-parquet.html">get_eea_parquet_urls()</a></code> will return an R character
 vector of a list of URLs at which individual parquet files can be found.
 This function ignores the datetime and aggregation type arguments.</li>
 </ul>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">urls</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/download-parquet.html">download_eea_parquet_urls</a></span><span class="op">(</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">urls</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/download-parquet.html">get_eea_parquet_urls</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">tables</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span>.x <span class="op">=</span> <span class="va">urls</span>, .f <span class="op">=</span> <span class="fu">arrow</span><span class="fu">::</span><span class="va">read_parquet</span><span class="op">)</span></span>
 <span></span>
