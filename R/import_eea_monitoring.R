@@ -61,8 +61,17 @@ format_monitoring <- function(zipdest, meta) {
   # read all parquet files w/ arrow
   table <-
     lapply(file.path(exdir, pfiles), arrow::read_parquet) |>
-    dplyr::bind_rows() |>
+    dplyr::bind_rows()
+
+  # error if no data is returned
+  if (is.null(table) || (!is.null(table) && nrow(table) == 0)) {
+    cli::cli_abort("No data has been returned.")
+  }
+
+  # split samplingpoint into country & id
+  table <-
     tidyr::separate_wider_delim(
+      table,
       "Samplingpoint",
       delim = "/",
       names = c("country_code", "sampling_point_id")
