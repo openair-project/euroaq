@@ -18,7 +18,7 @@ format_date_for_api <- function(x, type = c("start", "end")) {
     if (type == "start") {
       x <- ISOdate(year = x, month = 1, day = 1, hour = 0)
     } else {
-      x <- ISOdate(year = x, month = 12, day = 31, hour = 23)
+      x <- ISOdate(year = x, month = 12, day = 31, hour = 24)
     }
     format(x, "%Y-%m-%dT%H:%M:%SZ")
   }
