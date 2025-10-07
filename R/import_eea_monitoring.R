@@ -72,7 +72,10 @@ format_monitoring <- function(zipdest, meta) {
 
   out <-
     table |>
-    dplyr::left_join(meta, dplyr::join_by("sampling_point_id")) |>
+    dplyr::left_join(
+      dplyr::distinct(meta, .data$sampling_point_id, .keep_all = TRUE),
+      dplyr::join_by("sampling_point_id")
+    ) |>
     dplyr::mutate(value = dplyr::na_if(.data$value, -999)) |>
     dplyr::select(
       "country",
