@@ -2,7 +2,7 @@
 #'
 #' This function is a convenient way to use EEA AQ monitoring data in an R
 #' session. It calls [get_eea_parquet_files()], reads each file using
-#' [nanoparquet::read_parquet()], removes unnecessary columns, and merges useful
+#' [arrow::read_parquet()], removes unnecessary columns, and merges useful
 #' columns from [import_eea_stations()].
 #'
 #' @returns a [tibble][tibble::tibble-package]
@@ -58,9 +58,9 @@ format_monitoring <- function(zipdest, meta) {
   # list all parquet files in the dir
   pfiles <- list.files(exdir, recursive = T, pattern = ".parquet")
 
-  # read all parquet files w/ nanoparquet
+  # read all parquet files w/ arrow
   table <-
-    lapply(file.path(exdir, pfiles), nanoparquet::read_parquet) |>
+    lapply(file.path(exdir, pfiles), arrow::read_parquet) |>
     dplyr::bind_rows() |>
     tidyr::separate_wider_delim(
       "Samplingpoint",
