@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">euroaq</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,6 +52,12 @@
       <small>Source: <a href="https://github.com/openair-project/euroaq/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.2" id="euroaq-012">euroaq 0.1.2<a class="anchor" aria-label="anchor" href="#euroaq-012"></a></h2>
+<ul><li><p><code><a href="../reference/import_eea_monitoring.html">import_eea_monitoring()</a></code> now forces <code>date</code> and <code>date_end</code> to have the timezone <code>timezone</code>.</p></li>
+<li><p><code><a href="../reference/import_eea_monitoring.html">import_eea_monitoring()</a></code> will now fail more elegantly if no data is returned.</p></li>
+<li><p>Providing an integer to the <code>datetime_end</code> of any function will now extend to the last day of the year.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.1" id="euroaq-011">euroaq 0.1.1<a class="anchor" aria-label="anchor" href="#euroaq-011"></a></h2>
 <ul><li><p><code>euroaq</code> now uses <code>arrow</code> over <code>nanoparquet</code>, as the latter appears to fail to read data correctly.</p></li>
