@@ -107,7 +107,27 @@ format_monitoring <- function(zipdest, meta) {
       "area" = "air_quality_station_area",
       "type" = "air_quality_station_type"
     ) |>
+    dplyr::mutate(
+      date = lubridate::force_tz(
+        .data$date,
+        tzone = tz_ea_to_olson(.data$timezone)
+      ),
+      date_end = lubridate::force_tz(
+        .data$date_end,
+        tzone = tz_ea_to_olson(.data$timezone)
+      )
+    ) |>
     tidyr::unite(col = "type", "area", "type", sep = " ")
 
   return(out)
+}
+
+#' Reformat EA timezones to `OlsonNames()`
+#' @noRd
+tz_ea_to_olson <- function(x) {
+  if (all(x == "UTC")) {
+    return(x)
+  }
+  tz <- gsub("UTC", "Etc/GMT", x)
+  gsub("\\+0", "\\+", tz)
 }
