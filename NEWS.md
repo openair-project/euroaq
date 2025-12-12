@@ -1,3 +1,8 @@
+# euroaq (development version)
+
+* `get_eea_ddb_extension_info()` and `get_eea_ddb_vars()` have been removed as these are no longer endpoints available from the EEA API.
+
+* `import_eea_pollutants()` has been fixed. This was broken due to changes in the API return values.
 
 # euroaq 0.1.2
 
