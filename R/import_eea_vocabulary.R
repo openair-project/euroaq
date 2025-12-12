@@ -56,26 +56,15 @@ import_eea_pollutants <- function() {
     dplyr::tibble() |>
     dplyr::rename_with(snakecase::to_snake_case)
 
-  pollutants$url <- pollutants$id
-  pollutants$id <-
-    stringi::stri_replace(
-      pollutants$id,
-      "",
-      fixed = "http://dd.eionet.europa.eu/vocabulary/aq/pollutant/"
-    )
-  pollutants$id <-
-    stringi::stri_replace(
-      pollutants$id,
-      "",
-      fixed = "http://dd.eionet.europa.eu/vocabularyconcept/aq/pollutant/"
-    )
-  pollutants$id <-
-    stringi::stri_replace(pollutants$id, "", fixed = "/view")
-  pollutants$id <- as.integer(pollutants$id)
-
   pollutants$pk <- NULL
 
-  names(pollutants) <- c("pollutant", "pollutant_id", "vocabulary_url")
+  pollutants <-
+    dplyr::transmute(
+      pollutants,
+      pollutant = .data$notation,
+      pollutant_id = .data$code,
+      vocabulary_url = .data$id
+    )
 
   return(pollutants)
 }
