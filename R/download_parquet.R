@@ -53,7 +53,8 @@
 #'
 #' @param dynamic If `TRUE`, will use a dynamic engine to create a single
 #'   parquet file containing all results rather than downloading many separate
-#'   parquet files.
+#'   parquet files. `TRUE` is the default, to reflect the default option of the
+#'   EEA data download portal itself.
 #'
 #' @param email Optional field to identify the user who make the download and
 #'   improve the communication if problems are detected.
@@ -85,11 +86,11 @@ get_eea_parquet_files <-
     dataset = 1L,
     aggregation_type = "hour",
     email = NULL,
-    dynamic = FALSE,
+    dynamic = TRUE,
     file = tempfile(fileext = ".zip")
   ) {
     resp <- parquet_api_response(
-      endpoint = ifelse(dynamic, "ParquetFile/dynamic", "ParquetFile"),
+      endpoint = ifelse(!dynamic, "ParquetFile/classic", "ParquetFile"),
       countries,
       cities,
       pollutants,
@@ -123,12 +124,12 @@ get_eea_parquet_async <-
     dataset = 1L,
     aggregation_type = "hour",
     email = NULL,
-    dynamic = FALSE
+    dynamic = TRUE
   ) {
     resp <- parquet_api_response(
       endpoint = ifelse(
-        dynamic,
-        "ParquetFile/async/dynamic",
+        !dynamic,
+        "ParquetFile/async/classic",
         "ParquetFile/async"
       ),
       countries,

@@ -17,7 +17,7 @@ get_eea_parquet_files(
   dataset = 1L,
   aggregation_type = "hour",
   email = NULL,
-  dynamic = FALSE,
+  dynamic = TRUE,
   file = tempfile(fileext = ".zip")
 )
 
@@ -30,7 +30,7 @@ get_eea_parquet_async(
   dataset = 1L,
   aggregation_type = "hour",
   email = NULL,
-  dynamic = FALSE
+  dynamic = TRUE
 )
 
 get_eea_parquet_urls(
@@ -109,7 +109,8 @@ improve the communication if problems are detected.}
 
 \item{dynamic}{If \code{TRUE}, will use a dynamic engine to create a single
 parquet file containing all results rather than downloading many separate
-parquet files.}
+parquet files. \code{TRUE} is the default, to reflect the default option of the
+EEA data download portal itself.}
 
 \item{file}{The file to write the zip file to; should ideally end in
 \code{".zip"}. Defaults to a temporary file using \code{\link[=tempfile]{tempfile()}}.}
