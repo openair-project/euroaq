@@ -11,7 +11,9 @@ import_eea_monitoring(
   datetime_start = as.integer(format(Sys.Date(), "\%Y")) - 1,
   datetime_end = as.integer(format(Sys.Date(), "\%Y")),
   dataset = 1L,
-  aggregation_type = "hour"
+  aggregation_type = "hour",
+  ...,
+  .endpoint = c("files", "urls")
 )
 }
 \arguments{
@@ -51,15 +53,24 @@ the values:
 \item Variable intervals (different than the previous observations such as
 weekly, monthly, etc.) (\code{"var"}).
 }}
+
+\item{...}{Not currently used.}
+
+\item{.endpoint}{Which of \code{\link[=get_eea_parquet_files]{get_eea_parquet_files()}} or
+\code{\link[=get_eea_parquet_urls]{get_eea_parquet_urls()}} to use. One of:
+\itemize{
+\item \code{"files"}, which can return limited amounts of data but respects \code{datetime_start} and \code{datetime_end}.
+\item \code{"urls"}, which can return much more data which may potentially contain dates outside the \code{datetime_start} to \code{datetime_end} range specified.
+}}
 }
 \value{
 a \link[tibble:tibble-package]{tibble}
 }
 \description{
 This function is a convenient way to use EEA AQ monitoring data in an R
-session. It calls \code{\link[=get_eea_parquet_files]{get_eea_parquet_files()}}, reads each file using
-\code{\link[arrow:read_parquet]{arrow::read_parquet()}}, removes unnecessary columns, and merges useful
-columns from \code{\link[=import_eea_stations]{import_eea_stations()}}.
+session. It calls \code{\link[=get_eea_parquet_files]{get_eea_parquet_files()}} or \code{\link[=get_eea_parquet_urls]{get_eea_parquet_urls()}},
+reads each file using \code{\link[arrow:read_parquet]{arrow::read_parquet()}}, removes unnecessary columns,
+and merges useful columns from \code{\link[=import_eea_stations]{import_eea_stations()}}.
 }
 \author{
 Jack Davison

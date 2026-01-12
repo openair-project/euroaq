@@ -6,6 +6,8 @@
 
 ## New Features
 
+* Added the `.endpoint` argument to `import_eea_monitoring()`. This allows users to access data via `get_eea_parquet_urls()`, which allows for a greater amount of data to be obtained in a single call in exchange for not respecting the user's date range selection.
+
 * Many functions now pass on the error returned in the body of the API over a generic R `{httr2}` error, for easier debugging.
 
 * `get_eea_parquet_files()` and family now use `dynamic = TRUE` by default. When `dynamic = FALSE` the API calls will route to the 'classic' endpoints.
