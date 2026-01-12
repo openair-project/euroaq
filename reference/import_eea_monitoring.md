@@ -2,7 +2,9 @@
 
 This function is a convenient way to use EEA AQ monitoring data in an R
 session. It calls
-[`get_eea_parquet_files()`](https://openair-project.github.io/euroaq/reference/download-parquet.md),
+[`get_eea_parquet_files()`](https://openair-project.github.io/euroaq/reference/download-parquet.md)
+or
+[`get_eea_parquet_urls()`](https://openair-project.github.io/euroaq/reference/download-parquet.md),
 reads each file using
 [`arrow::read_parquet()`](https://arrow.apache.org/docs/r/reference/read_parquet.html),
 removes unnecessary columns, and merges useful columns from
@@ -18,7 +20,9 @@ import_eea_monitoring(
   datetime_start = as.integer(format(Sys.Date(), "%Y")) - 1,
   datetime_end = as.integer(format(Sys.Date(), "%Y")),
   dataset = 1L,
-  aggregation_type = "hour"
+  aggregation_type = "hour",
+  ...,
+  .endpoint = c("files", "urls")
 )
 ```
 
@@ -75,6 +79,25 @@ import_eea_monitoring(
 
   3.  Variable intervals (different than the previous observations such
       as weekly, monthly, etc.) (`"var"`).
+
+- ...:
+
+  Not currently used.
+
+- .endpoint:
+
+  Which of
+  [`get_eea_parquet_files()`](https://openair-project.github.io/euroaq/reference/download-parquet.md)
+  or
+  [`get_eea_parquet_urls()`](https://openair-project.github.io/euroaq/reference/download-parquet.md)
+  to use. One of:
+
+  - `"files"`, which can return limited amounts of data but respects
+    `datetime_start` and `datetime_end`.
+
+  - `"urls"`, which can return much more data which may potentially
+    contain dates outside the `datetime_start` to `datetime_end` range
+    specified.
 
 ## Value
 

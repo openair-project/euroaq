@@ -1,13 +1,30 @@
 # Changelog
 
-## euroaq (development version)
+## euroaq 0.1.3
+
+### Breaking Changes
+
+- `get_eea_ddb_extension_info()` and `get_eea_ddb_vars()` have been
+  removed as these are no longer endpoints available from the EEA API.
+
+### New Features
+
+- Added the `.endpoint` argument to
+  [`import_eea_monitoring()`](https://openair-project.github.io/euroaq/reference/import_eea_monitoring.md).
+  This allows users to access data via
+  [`get_eea_parquet_urls()`](https://openair-project.github.io/euroaq/reference/download-parquet.md),
+  which allows for a greater amount of data to be obtained in a single
+  call in exchange for not respecting the user’s date range selection.
+
+- Many functions now pass on the error returned in the body of the API
+  over a generic R [httr2](https://httr2.r-lib.org) error, for easier
+  debugging.
 
 - [`get_eea_parquet_files()`](https://openair-project.github.io/euroaq/reference/download-parquet.md)
   and family now use `dynamic = TRUE` by default. When `dynamic = FALSE`
   the API calls will route to the ‘classic’ endpoints.
 
-- `get_eea_ddb_extension_info()` and `get_eea_ddb_vars()` have been
-  removed as these are no longer endpoints available from the EEA API.
+### Bug Fixes
 
 - [`import_eea_pollutants()`](https://openair-project.github.io/euroaq/reference/eea-metadata.md)
   has been fixed. This was broken due to changes in the API return
