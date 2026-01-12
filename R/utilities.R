@@ -23,3 +23,17 @@ format_date_for_api <- function(x, type = c("start", "end")) {
     format(x, "%Y-%m-%dT%H:%M:%SZ")
   }
 }
+
+#' If an API does not return a 2XX code, pass on the body as an error
+#' @noRd
+report_error <- function(resp) {
+  if (!startsWith(as.character(resp$status_code), "2")) {
+    cli::cli_abort(
+      c(
+        "!" = "{.strong Status code: {resp$status_code}}",
+        "i" = "{httr2::resp_body_string(resp)}"
+      ),
+      call = NULL
+    )
+  }
+}

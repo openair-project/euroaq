@@ -22,6 +22,14 @@ import_eea_monitoring <-
     dataset = 1L,
     aggregation_type = "hour"
   ) {
+    # if no cities, find out which cities are in the country
+    if (is.null(cities)) {
+      cities_df <- import_eea_cities(countries)
+      if (nrow(cities_df) > 0) {
+        cities <- cities_df$city_name
+      }
+    }
+
     # download parquet file
     zipdest <- get_eea_parquet_files(
       countries,

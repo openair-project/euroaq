@@ -291,7 +291,11 @@ parquet_api_response <- function(
     httr2::req_method("POST") |>
     httr2::req_headers("Content-Type" = "application/json") |>
     httr2::req_body_json(request_body) |>
+    httr2::req_error(is_error = \(resp) FALSE) |>
     httr2::req_perform()
+
+  # error if appropriate
+  report_error(resp)
 
   return(resp)
 }

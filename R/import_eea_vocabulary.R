@@ -14,18 +14,23 @@
 #'
 #' @export
 import_eea_cities <- function(country) {
-  request <-
+  # send request
+  resp <-
     httr2::request(base_url = construct_url("City")) |>
     httr2::req_method("POST") |>
     httr2::req_headers(
       "accept" = "text/plain",
       "Content-Type" = "application/json"
     ) |>
-    httr2::req_body_json(as.list(country))
+    httr2::req_body_json(as.list(country)) |>
+    httr2::req_error(is_error = \(resp) FALSE) |>
+    httr2::req_perform()
 
-  response <- httr2::req_perform(request)
+  # error if appropriate
+  report_error(resp)
 
-  table <- httr2::resp_body_json(response, simplifyVector = TRUE) |>
+  # create return table
+  table <- httr2::resp_body_json(resp, simplifyVector = TRUE) |>
     dplyr::tibble() |>
     dplyr::rename_with(snakecase::to_snake_case)
 
@@ -39,8 +44,17 @@ import_eea_cities <- function(country) {
 #' @rdname eea-metadata
 #' @export
 import_eea_countries <- function() {
-  httr2::request(construct_url("Country")) |>
-    httr2::req_perform() |>
+  # send request
+  resp <-
+    httr2::request(construct_url("Country")) |>
+    httr2::req_error(is_error = \(resp) FALSE) |>
+    httr2::req_perform()
+
+  # error if appropriate
+  report_error(resp)
+
+  # return
+  resp |>
     httr2::resp_body_json(simplifyVector = TRUE) |>
     dplyr::tibble() |>
     dplyr::rename_with(snakecase::to_snake_case)
@@ -49,9 +63,18 @@ import_eea_countries <- function() {
 #' @rdname eea-metadata
 #' @export
 import_eea_pollutants <- function() {
-  pollutants <-
+  # send request
+  resp <-
     httr2::request(construct_url("Pollutant")) |>
-    httr2::req_perform() |>
+    httr2::req_error(is_error = \(resp) FALSE) |>
+    httr2::req_perform()
+
+  # error if appropriate
+  report_error(resp)
+
+  # create return table
+  pollutants <-
+    resp |>
     httr2::resp_body_json(simplifyVector = TRUE) |>
     dplyr::tibble() |>
     dplyr::rename_with(snakecase::to_snake_case)
