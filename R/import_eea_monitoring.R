@@ -122,7 +122,7 @@ import_eea_monitoring_files <- function(
   utils::unzip(zipfile = zipdest, exdir = exdir)
 
   # list all parquet files in the dir
-  pfiles <- list.files(exdir, recursive = T, pattern = ".parquet")
+  pfiles <- list.files(exdir, recursive = TRUE, pattern = ".parquet")
 
   # read all parquet files w/ arrow
   table <-
