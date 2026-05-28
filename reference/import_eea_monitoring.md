@@ -1,10 +1,10 @@
-# Conveniently import European Air Quality data into R
+# Conveniently import European Air Quality monitoring data into R
 
 This function is a convenient way to use EEA AQ monitoring data in an R
 session. It calls
-[`get_eea_parquet_files()`](https://openair-project.github.io/euroaq/reference/download-parquet.md)
+[`get_eea_parquet_files()`](https://openair-project.github.io/euroaq/reference/get-parquet.md)
 or
-[`get_eea_parquet_urls()`](https://openair-project.github.io/euroaq/reference/download-parquet.md),
+[`get_eea_parquet_urls()`](https://openair-project.github.io/euroaq/reference/get-parquet.md),
 reads each file using
 [`arrow::read_parquet()`](https://arrow.apache.org/docs/r/reference/read_parquet.html),
 removes unnecessary columns, and merges useful columns from
@@ -67,7 +67,12 @@ import_eea_monitoring(
       September each year for the previous year.
 
   3.  Historical Airbase data delivered between 2002 and 2012 before Air
-      Quality Directive 2008/50/EC entered into force
+      Quality Directive 2008/50/EC entered into force.
+
+  4.  Downscaled CAMS forecast at station level.
+
+  5.  Gap-filled E2a, using linear interpolation for smaller gaps, and a
+      regressor based on similar stations for larger ones.
 
 - aggregation_type:
 
@@ -87,9 +92,9 @@ import_eea_monitoring(
 - .endpoint:
 
   Which of
-  [`get_eea_parquet_files()`](https://openair-project.github.io/euroaq/reference/download-parquet.md)
+  [`get_eea_parquet_files()`](https://openair-project.github.io/euroaq/reference/get-parquet.md)
   or
-  [`get_eea_parquet_urls()`](https://openair-project.github.io/euroaq/reference/download-parquet.md)
+  [`get_eea_parquet_urls()`](https://openair-project.github.io/euroaq/reference/get-parquet.md)
   to use. One of:
 
   - `"files"`, which can return limited amounts of data but respects

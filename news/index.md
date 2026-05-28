@@ -1,5 +1,35 @@
 # Changelog
 
+## euroaq 0.2.0
+
+### Breaking Changes
+
+- [`import_eea_stations()`](https://openair-project.github.io/euroaq/reference/import_eea_stations.md)
+  has had all of its arguments removed bar `countries`, which is now
+  compulsory. This is to compensate for upstream changes.
+
+- [`import_eea_cities()`](https://openair-project.github.io/euroaq/reference/eea-metadata.md)
+  has had its `country` argument renamed to `countries` for consistency.
+
+### New Features
+
+- Added
+  [`import_eea_raster()`](https://openair-project.github.io/euroaq/reference/import_eea_raster.md),
+  [`get_eea_raster_files()`](https://openair-project.github.io/euroaq/reference/get-raster.md)
+  and `get_eea_raster_urls()` to access the CAMS rasters.
+
+- Added the `compress` argument to the
+  [`get_eea_parquet_files()`](https://openair-project.github.io/euroaq/reference/get-parquet.md)
+  family.
+
+### Bug Fixes
+
+- Fixed
+  [`import_eea_monitoring()`](https://openair-project.github.io/euroaq/reference/import_eea_monitoring.md)
+  and
+  [`import_eea_stations()`](https://openair-project.github.io/euroaq/reference/import_eea_stations.md),
+  which were broken due to upstream changes.
+
 ## euroaq 0.1.3
 
 ### Breaking Changes
@@ -12,7 +42,7 @@
 - Added the `.endpoint` argument to
   [`import_eea_monitoring()`](https://openair-project.github.io/euroaq/reference/import_eea_monitoring.md).
   This allows users to access data via
-  [`get_eea_parquet_urls()`](https://openair-project.github.io/euroaq/reference/download-parquet.md),
+  [`get_eea_parquet_urls()`](https://openair-project.github.io/euroaq/reference/get-parquet.md),
   which allows for a greater amount of data to be obtained in a single
   call in exchange for not respecting the user’s date range selection.
 
@@ -20,7 +50,7 @@
   over a generic R [httr2](https://httr2.r-lib.org) error, for easier
   debugging.
 
-- [`get_eea_parquet_files()`](https://openair-project.github.io/euroaq/reference/download-parquet.md)
+- [`get_eea_parquet_files()`](https://openair-project.github.io/euroaq/reference/get-parquet.md)
   and family now use `dynamic = TRUE` by default. When `dynamic = FALSE`
   the API calls will route to the ‘classic’ endpoints.
 

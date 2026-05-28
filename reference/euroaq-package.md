@@ -18,3 +18,8 @@ Useful links:
 
 **Maintainer**: Jack Davison <jack.davison@ricardo.com>
 ([ORCID](https://orcid.org/0000-0003-2653-6615))
+
+Authors:
+
+- Jack Davison <jack.davison@ricardo.com>
+  ([ORCID](https://orcid.org/0000-0003-2653-6615))

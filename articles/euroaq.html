@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Importing EEA AQ Data with {euroaq} • euroaq</title>
 <script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Nunito_Sans-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Nunito_Sans-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">euroaq</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,24 +86,28 @@
     
     
 <div class="section level2">
-<h2 id="downloading-data">Downloading Data<a class="anchor" aria-label="anchor" href="#downloading-data"></a>
+<h2 id="monitoring-data">Monitoring Data<a class="anchor" aria-label="anchor" href="#monitoring-data"></a>
 </h2>
+<div class="section level3">
+<h3 id="downloading-data">Downloading Data<a class="anchor" aria-label="anchor" href="#downloading-data"></a>
+</h3>
 <p>Before you download any data, it may be useful to access some key
 metadata. The following functions are available to do so:</p>
 <ul>
-<li><p><code><a href="../reference/import_eea_stations.html">import_eea_stations()</a></code> accesses data flow D (station
-metadata).</p></li>
+<li><p><code>import_eea_stations(countries = "FR")</code> accesses data
+flow D (station metadata). Note that one or more countries must be
+specified.</p></li>
 <li><p><code><a href="../reference/eea-metadata.html">import_eea_pollutants()</a></code> accesses pollutant names and
 identifiers.</p></li>
 <li><p><code><a href="../reference/eea-metadata.html">import_eea_countries()</a></code> accesses country names and
 identifiers.</p></li>
-<li><p><code><a href="../reference/eea-metadata.html">import_eea_cities()</a></code> accesses city names in a given
-country or countries.</p></li>
+<li><p><code>import_eea_cities(countries = "FR")</code> accesses city
+names in a given country or countries.</p></li>
 </ul>
 <p>Each of these functions will return R data frames, making them
 convenient for further analysis and filtering.</p>
 <p>To actually download data, you may use
-<code><a href="../reference/import_eea_monitoring.html">import_eea_monitoring()</a></code>. This function has four
+<code><a href="../reference/import_eea_monitoring.html">import_eea_monitoring()</a></code>. This function has four main
 arguments:</p>
 <ol style="list-style-type: decimal">
 <li><p><code>countries</code>, requiring a vector of code(s) from
@@ -114,8 +118,11 @@ arguments:</p>
 <code><a href="../reference/eea-metadata.html">import_eea_pollutants()</a></code>.</p></li>
 <li><p><code>dataset</code>, requiring a value of either <code>1</code>
 (unratified, up-to-date data from data flow E2a), <code>2</code>
-(ratified data from data flow E1a) or <code>3</code> (Historical Airbase
-data).</p></li>
+(ratified data from data flow E1a), <code>3</code> (Historical Airbase
+data), <code>4</code>, (Downscaled CAMS forecast at station level) or
+<code>5</code> (Gap-filled E2a, using linear interpolation for smaller
+gaps, and a regressor based on similar stations for larger
+ones).</p></li>
 </ol>
 <p>It is recommended that users provide at least one country, as leaving
 this as <code>NULL</code> is likely to import more data than a typical R
@@ -126,9 +133,9 @@ convenient English names, and binds on commonly useful metadata columns
 from <code><a href="../reference/import_eea_stations.html">import_eea_stations()</a></code>. If a user wants more
 flexibility, they may wish to access the EEA’s API directly.</p>
 </div>
-<div class="section level2">
-<h2 id="data-access-via-api-endpoints">Data Access via API Endpoints<a class="anchor" aria-label="anchor" href="#data-access-via-api-endpoints"></a>
-</h2>
+<div class="section level3">
+<h3 id="data-access-via-api-endpoints">Data Access via API Endpoints<a class="anchor" aria-label="anchor" href="#data-access-via-api-endpoints"></a>
+</h3>
 <p>For more flexible data access, including asynchronous data access,
 there are three options, mirroring the three options outlined in <a href="https://eeadmz1-downloads-webapp.azurewebsites.net/content/documentation/How_To_Downloads.pdf" class="external-link uri">https://eeadmz1-downloads-webapp.azurewebsites.net/content/documentation/How_To_Downloads.pdf</a>.
 Each of these has options to control where data is imported from
@@ -137,11 +144,11 @@ datasets of origin. Two of the three also allow for users to specify a
 start and end date, as well as an aggregation type.</p>
 <ul>
 <li>
-<code><a href="../reference/download-parquet.html">get_eea_parquet_files()</a></code> will download a zip folder of
+<code><a href="../reference/get-parquet.html">get_eea_parquet_files()</a></code> will download a zip folder of
 parquet files to a user-specified file, returning the file path.</li>
 </ul>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/download-parquet.html">get_eea_parquet_files</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">"mydata.zip"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/get-parquet.html">get_eea_parquet_files</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">"mydata.zip"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">zip</span><span class="fu">::</span><span class="fu">unzip</span><span class="op">(</span>zipfile <span class="op">=</span> <span class="st">"mydata.zip"</span>, exdir <span class="op">=</span> <span class="st">"parquets"</span><span class="op">)</span></span>
 <span></span>
@@ -152,12 +159,12 @@ parquet files to a user-specified file, returning the file path.</li>
 <span><span class="va">aqdata</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">tables</span><span class="op">)</span></span></code></pre></div>
 <ul>
 <li>
-<code><a href="../reference/download-parquet.html">get_eea_parquet_async()</a></code> will initiate the construction
+<code><a href="../reference/get-parquet.html">get_eea_parquet_async()</a></code> will initiate the construction
 of a zip folder of parquet files and returns a URL at which a zip file
 will be eventually available.</li>
 </ul>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">zippath</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/download-parquet.html">get_eea_parquet_async</a></span><span class="op">(</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">zippath</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get-parquet.html">get_eea_parquet_async</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># wait for zip to be populated</span></span>
 <span></span>
@@ -172,16 +179,47 @@ will be eventually available.</li>
 <span><span class="va">aqdata</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">tables</span><span class="op">)</span></span></code></pre></div>
 <ul>
 <li>
-<code><a href="../reference/download-parquet.html">get_eea_parquet_urls()</a></code> will return an R character
+<code><a href="../reference/get-parquet.html">get_eea_parquet_urls()</a></code> will return an R character
 vector of a list of URLs at which individual parquet files can be found.
 This function ignores the datetime and aggregation type arguments.</li>
 </ul>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">urls</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/download-parquet.html">get_eea_parquet_urls</a></span><span class="op">(</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">urls</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get-parquet.html">get_eea_parquet_urls</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">tables</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span>.x <span class="op">=</span> <span class="va">urls</span>, .f <span class="op">=</span> <span class="fu">arrow</span><span class="fu">::</span><span class="va"><a href="https://arrow.apache.org/docs/r/reference/read_parquet.html" class="external-link">read_parquet</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">aqdata</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">tables</span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="modelled-data">Modelled Data<a class="anchor" aria-label="anchor" href="#modelled-data"></a>
+</h2>
+<p>Modelled data at each monitoring station can be accessed using
+<code>dataset = 4</code> in the already discussed functions.
+Additionally, the EEA Download Portal gives access to complete forecast
+maps of downscaled CAMS data, for entire countries or capital cities, in
+raster format. There are two ways to access this:</p>
+<ul>
+<li><p>Most conveniently, a user can use
+<code><a href="../reference/import_eea_raster.html">import_eea_raster()</a></code> which downloads the requested raster
+files and reads them into R. This required the <a href="https://rspatial.org/" class="external-link">terra</a>
+package.</p></li>
+<li><p>For more flexibility, lower-level API functions are provided -
+<code><a href="../reference/get-raster.html">get_eea_raster_files()</a></code> and
+<code><a href="../reference/get-raster.html">get_eea_raster_async()</a></code>. These work similarly to their
+<code><a href="../reference/get-parquet.html">get_eea_parquet_files()</a></code> and
+<code><a href="../reference/get-parquet.html">get_eea_parquet_async()</a></code> equivalents, already
+discussed.</p></li>
+</ul>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># read into R</span></span>
+<span><span class="va">fr_rast</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import_eea_raster.html">import_eea_raster</a></span><span class="op">(</span><span class="st">"FR"</span>, <span class="st">"Paris"</span>, pollutants <span class="op">=</span> <span class="st">"pm10"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># then can plot or analyse further with {terra}</span></span>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plet.html" class="external-link">plet</a></span><span class="op">(</span><span class="va">fr_rast</span><span class="op">)</span></span></code></pre></div>
+<p>Note that there is a limit to the width of the date range of data
+accessed in one time using this approach. The user must also specify a
+single country and at least one pollutant.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

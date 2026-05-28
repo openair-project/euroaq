@@ -9,11 +9,13 @@
 <url><loc>https://openair-project.github.io/euroaq/authors.html</loc></url>
 <url><loc>https://openair-project.github.io/euroaq/index.html</loc></url>
 <url><loc>https://openair-project.github.io/euroaq/news/index.html</loc></url>
-<url><loc>https://openair-project.github.io/euroaq/reference/download-parquet.html</loc></url>
 <url><loc>https://openair-project.github.io/euroaq/reference/eea-metadata.html</loc></url>
 <url><loc>https://openair-project.github.io/euroaq/reference/euroaq-package.html</loc></url>
+<url><loc>https://openair-project.github.io/euroaq/reference/get-parquet.html</loc></url>
+<url><loc>https://openair-project.github.io/euroaq/reference/get-raster.html</loc></url>
 <url><loc>https://openair-project.github.io/euroaq/reference/get_eea_version.html</loc></url>
 <url><loc>https://openair-project.github.io/euroaq/reference/import_eea_monitoring.html</loc></url>
+<url><loc>https://openair-project.github.io/euroaq/reference/import_eea_raster.html</loc></url>
 <url><loc>https://openair-project.github.io/euroaq/reference/import_eea_stations.html</loc></url>
 <url><loc>https://openair-project.github.io/euroaq/reference/index.html</loc></url>
 </urlset>

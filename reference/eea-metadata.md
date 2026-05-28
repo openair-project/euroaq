@@ -7,7 +7,7 @@ cities and pollutants, formatting them as
 ## Usage
 
 ``` r
-import_eea_cities(country)
+import_eea_cities(countries)
 
 import_eea_countries()
 
@@ -16,7 +16,7 @@ import_eea_pollutants()
 
 ## Arguments
 
-- country:
+- countries:
 
   A vector of country codes from `import_eea_countries()`. Only used in
   `import_eea_cities()`.

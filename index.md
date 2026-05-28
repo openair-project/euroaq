@@ -28,14 +28,17 @@ service API.
 - **Access up-to-date and historic European AQ monitoring data** with
   [`import_eea_monitoring()`](https://openair-project.github.io/euroaq/reference/import_eea_monitoring.md).
 
+- **Access Downscaled CAMS AQ modelling data** with
+  [`import_eea_raster()`](https://openair-project.github.io/euroaq/reference/import_eea_raster.md).
+
 - **Access AQ station metadata** from data flow D with
   [`import_eea_stations()`](https://openair-project.github.io/euroaq/reference/import_eea_stations.md).
 
 - **Call the API directly** with a collection of convenient R wrappers
   for each API endpoint.
 
-ℹ️ *This package is compatible with version `0.8` of the AQ Downloads
-service, released on `2025-03-31`. If a newer version is released,
+ℹ️ *This package is compatible with version `1.2` of the AQ Downloads
+service, released on `2026-05-05`. If a newer version is released,
 please [raise an
 issue](https://github.com/openair-project/euroaq/issues) if there isn’t
 already one.*
@@ -48,6 +51,7 @@ All **euroaq** functions are fully documented; access documentation
 using R in your IDE of choice.
 
 ``` r
+
 ?euroaq::import_eea_monitoring
 ```
 
@@ -71,6 +75,7 @@ The development version of **euroaq** can be installed from GitHub using
 [pak](https://pak.r-lib.org/):
 
 ``` r
+
 # install.packages("pak")
 pak::pak("openair-project/euroaq")
 ```
