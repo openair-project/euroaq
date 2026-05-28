@@ -36,11 +36,13 @@
 
 - **Access up-to-date and historic European AQ monitoring data** with `import_eea_monitoring()`.
 
+- **Access Downscaled CAMS AQ modelling data** with `import_eea_raster()`.
+
 - **Access AQ station metadata** from data flow D with `import_eea_stations()`.
 
 - **Call the API directly** with a collection of convenient R wrappers for each API endpoint.
 
-ℹ️ *This package is compatible with version `0.8` of the AQ Downloads service, released on `2025-03-31`. If a newer version is released, please [raise an issue](https://github.com/openair-project/euroaq/issues) if there isn't already one.*
+ℹ️ *This package is compatible with version `1.2` of the AQ Downloads service, released on `2026-05-05`. If a newer version is released, please [raise an issue](https://github.com/openair-project/euroaq/issues) if there isn't already one.*
 
 <hr>
 

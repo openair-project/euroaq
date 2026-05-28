@@ -3,7 +3,7 @@
 #' This collection of functions import information on available countries,
 #' cities and pollutants, formatting them as [tibbles][tibble::tibble-package].
 #'
-#' @param country A vector of country codes from [import_eea_countries()]. Only
+#' @param countries A vector of country codes from [import_eea_countries()]. Only
 #'   used in [import_eea_cities()].
 #'
 #' @return a [tibble][tibble::tibble-package]
@@ -13,7 +13,7 @@
 #' @author Jack Davison
 #'
 #' @export
-import_eea_cities <- function(country) {
+import_eea_cities <- function(countries) {
   # send request
   resp <-
     httr2::request(base_url = construct_url("City")) |>
@@ -22,7 +22,7 @@ import_eea_cities <- function(country) {
       "accept" = "text/plain",
       "Content-Type" = "application/json"
     ) |>
-    httr2::req_body_json(as.list(country)) |>
+    httr2::req_body_json(as.list(countries)) |>
     httr2::req_error(is_error = \(resp) FALSE) |>
     httr2::req_perform()
 

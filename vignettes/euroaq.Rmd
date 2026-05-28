@@ -14,21 +14,23 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Downloading Data
+# Monitoring Data
+
+## Downloading Data
 
 Before you download any data, it may be useful to access some key metadata. The following functions are available to do so:
 
-- `import_eea_stations()` accesses data flow D (station metadata).
+- `import_eea_stations(countries = "FR")` accesses data flow D (station metadata). Note that one or more countries must be specified.
 
 - `import_eea_pollutants()` accesses pollutant names and identifiers.
 
 - `import_eea_countries()` accesses country names and identifiers.
 
-- `import_eea_cities()` accesses city names in a given country or countries.
+- `import_eea_cities(countries = "FR")` accesses city names in a given country or countries.
 
 Each of these functions will return R data frames, making them convenient for further analysis and filtering.
 
-To actually download data, you may use `import_eea_monitoring()`. This function has four arguments:
+To actually download data, you may use `import_eea_monitoring()`. This function has four main arguments:
 
 1. `countries`, requiring a vector of code(s) from `import_eea_countries()`.
 
@@ -36,13 +38,13 @@ To actually download data, you may use `import_eea_monitoring()`. This function 
 
 3. `pollutants`, requiring a vector of code(s) from `import_eea_pollutants()`.
 
-4. `dataset`, requiring a value of either `1` (unratified, up-to-date data from data flow E2a), `2` (ratified data from data flow E1a) or `3` (Historical Airbase data).
+4. `dataset`, requiring a value of either `1` (unratified, up-to-date data from data flow E2a), `2` (ratified data from data flow E1a), `3` (Historical Airbase data), `4`, (Downscaled CAMS forecast at station level) or `5` (Gap-filled E2a, using linear interpolation for smaller gaps, and a regressor based on similar stations for larger ones).
 
 It is recommended that users provide at least one country, as leaving this as `NULL` is likely to import more data than a typical R session can handle.
 
 `import_eea_monitoring()` is quite an opinionated function; it uses a specific method to acquire data, renames columns to convenient English names, and binds on commonly useful metadata columns from `import_eea_stations()`. If a user wants more flexibility, they may wish to access the EEA's API directly.
 
-# Data Access via API Endpoints
+## Data Access via API Endpoints
 
 For more flexible data access, including asynchronous data access, there are three options, mirroring the three options outlined in <https://eeadmz1-downloads-webapp.azurewebsites.net/content/documentation/How_To_Downloads.pdf>. Each of these has options to control where data is imported from (countries & cities), specific pollutants to import, and the datasets of origin. Two of the three also allow for users to specify a start and end date, as well as an aggregation type.
 
@@ -87,3 +89,21 @@ tables <- purrr::map(.x = urls, .f = arrow::read_parquet)
 
 aqdata <- dplyr::bind_rows(tables)
 ```
+
+# Modelled Data
+
+Modelled data at each monitoring station can be accessed using `dataset = 4` in the already discussed functions. Additionally, the EEA Download Portal gives access to complete forecast maps of downscaled CAMS data, for entire countries or capital cities, in raster format. There are two ways to access this:
+
+- Most conveniently, a user can use `import_eea_raster()` which downloads the requested raster files and reads them into R. This required the `{terra}` package.
+
+- For more flexibility, lower-level API functions are provided - `get_eea_raster_files()` and `get_eea_raster_async()`. These work similarly to their `get_eea_parquet_files()` and `get_eea_parquet_async()` equivalents, already discussed.
+
+```r
+# read into R
+fr_rast <- import_eea_raster("FR", "Paris", pollutants = "pm10")
+
+# then can plot or analyse further with {terra}
+terra::plet(fr_rast)
+```
+
+Note that there is a limit to the width of the date range of data accessed in one time using this approach. The user must also specify a single country and at least one pollutant.

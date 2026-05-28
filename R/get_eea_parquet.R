@@ -15,18 +15,22 @@
 #'
 #' @param countries A vector of country codes from [import_eea_countries()]. If
 #'   `NULL`, data from all countries will be imported.
+#'
 #' @param cities A vector of cities in the given `countries` from
 #'   [import_eea_cities()]. If `NULL`, data from all cities in the given
 #'   `countries` will be imported.
+#'
 #' @param pollutants A vector of pollutant notations or IDs from
 #'   [import_eea_pollutants()]. If `NULL`, data for all pollutants will be
 #'   imported.
+#'
 #' @param datetime_start,datetime_end Start and end date times, provided as
 #'   `POSIXct`, `Date` or `integer` R objects. If an `integer` is provided, this
 #'   should represent the year of interest; for `datetime_start` this will be
 #'   represent the first hour of the year and for `datetime_end` it will
 #'   represent the last hour of the year, meaning providing the same integer to
 #'   each will return a year of data.
+#'
 #' @param dataset The value of the dataset. One of:
 #'
 #'   1. Unverified data transmitted continuously (Up-To-Date/UTD/E2a) data from
@@ -36,7 +40,12 @@
 #'   each year for the previous year.
 #'
 #'   3. Historical Airbase data delivered between 2002 and 2012 before Air
-#'   Quality Directive 2008/50/EC entered into force
+#'   Quality Directive 2008/50/EC entered into force.
+#'
+#'   4. Downscaled CAMS forecast at station level.
+#'
+#'   5. Gap-filled E2a, using linear interpolation for smaller gaps, and a
+#'   regressor based on similar stations for larger ones.
 #'
 #' @param aggregation_type represents whether the data collected is obtaining
 #'   the values:
@@ -59,6 +68,9 @@
 #' @param email Optional field to identify the user who make the download and
 #'   improve the communication if problems are detected.
 #'
+#' @param compress Boolean value that defines the type of the file to be
+#'   obtained (`TRUE` for ZIP or `FALSE` for parquet).
+#'
 #' @returns One of:
 #'
 #' - [get_eea_parquet_files()]: the `file` argument - the path to the downloaded ZIP file.
@@ -69,11 +81,11 @@
 #'
 #' - [get_eea_summary()]: a numeric list, with names `numberFiles` and `size`.
 #'
-#' - [get_eea_country_city_spos()]: a `data.frame` containing the `country` & `sampling_point_id`.
+#' - [get_eea_country_city_spos()]: a `data.frame` of local IDs.
 #'
 #' @author Jack Davison
 #'
-#' @rdname download-parquet
+#' @rdname get-parquet
 #' @order 1
 #' @export
 get_eea_parquet_files <-
@@ -86,6 +98,7 @@ get_eea_parquet_files <-
     dataset = 1L,
     aggregation_type = "hour",
     email = NULL,
+    compress = TRUE,
     dynamic = TRUE,
     file = tempfile(fileext = ".zip")
   ) {
@@ -98,7 +111,8 @@ get_eea_parquet_files <-
       datetime_start,
       datetime_end,
       aggregation_type,
-      email
+      email,
+      compress
     )
 
     # API URL and endpoint
@@ -111,7 +125,7 @@ get_eea_parquet_files <-
     return(file)
   }
 
-#' @rdname download-parquet
+#' @rdname get-parquet
 #' @order 2
 #' @export
 get_eea_parquet_async <-
@@ -124,6 +138,7 @@ get_eea_parquet_async <-
     dataset = 1L,
     aggregation_type = "hour",
     email = NULL,
+    compress = TRUE,
     dynamic = TRUE
   ) {
     resp <- parquet_api_response(
@@ -139,14 +154,15 @@ get_eea_parquet_async <-
       datetime_start,
       datetime_end,
       aggregation_type,
-      email
+      email,
+      compress
     )
 
     return(httr2::resp_body_string(resp))
   }
 
 
-#' @rdname download-parquet
+#' @rdname get-parquet
 #' @order 3
 #' @export
 get_eea_parquet_urls <-
@@ -158,7 +174,8 @@ get_eea_parquet_urls <-
     datetime_end = as.integer(format(Sys.Date(), "%Y")),
     dataset = 1L,
     aggregation_type = "hour",
-    email = NULL
+    email = NULL,
+    compress = TRUE
   ) {
     resp <- parquet_api_response(
       endpoint = "/ParquetFile/urls",
@@ -169,13 +186,14 @@ get_eea_parquet_urls <-
       datetime_start,
       datetime_end,
       aggregation_type,
-      email
+      email,
+      compress
     )
 
     utils::read.csv(text = httr2::resp_body_string(resp))$ParquetFileUrl
   }
 
-#' @rdname download-parquet
+#' @rdname get-parquet
 #' @order 4
 #' @export
 get_eea_country_city_spos <-
@@ -187,7 +205,8 @@ get_eea_country_city_spos <-
     datetime_end = as.integer(format(Sys.Date(), "%Y")),
     dataset = 1L,
     aggregation_type = "hour",
-    email = NULL
+    email = NULL,
+    compress = TRUE
   ) {
     resp <- parquet_api_response(
       endpoint = "City/GetCountryCitySpos",
@@ -198,20 +217,16 @@ get_eea_country_city_spos <-
       datetime_start,
       datetime_end,
       aggregation_type,
-      email
+      email,
+      compress
     )
 
     httr2::resp_body_json(resp, simplifyVector = TRUE) |>
       dplyr::select(-"pk") |>
-      dplyr::tibble() |>
-      tidyr::separate_wider_delim(
-        "localid",
-        delim = "/",
-        names = c("country", "sampling_point_id")
-      )
+      dplyr::tibble()
   }
 
-#' @rdname download-parquet
+#' @rdname get-parquet
 #' @order 5
 #' @export
 get_eea_summary <-
@@ -223,7 +238,8 @@ get_eea_summary <-
     datetime_end = as.integer(format(Sys.Date(), "%Y")),
     dataset = 1L,
     aggregation_type = "hour",
-    email = NULL
+    email = NULL,
+    compress = TRUE
   ) {
     resp <- parquet_api_response(
       endpoint = "DownloadSummary",
@@ -234,7 +250,8 @@ get_eea_summary <-
       datetime_start,
       datetime_end,
       aggregation_type,
-      email
+      email,
+      compress
     )
 
     httr2::resp_body_json(resp)
@@ -251,7 +268,8 @@ parquet_api_response <- function(
   datetime_start,
   datetime_end,
   aggregation_type,
-  email
+  email,
+  compress
 ) {
   rlang::arg_match(aggregation_type, c("hour", "day", "var"))
 
@@ -285,6 +303,11 @@ parquet_api_response <- function(
       list(email = email)
     )
   }
+
+  request_body <- append(
+    request_body,
+    list(compress = compress)
+  )
 
   # Send the POST request
   resp <- httr2::request(construct_url(endpoint)) |>

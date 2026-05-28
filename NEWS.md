@@ -1,3 +1,21 @@
+# euroaq 0.2.0
+
+## Breaking Changes
+
+* `import_eea_stations()` has had all of its arguments removed bar `countries`, which is now compulsory. This is to compensate for upstream changes.
+
+* `import_eea_cities()` has had its `country` argument renamed to `countries` for consistency.
+
+## New Features
+
+* Added `import_eea_raster()`, `get_eea_raster_files()` and `get_eea_raster_urls()` to access the CAMS rasters.
+
+* Added the `compress` argument to the `get_eea_parquet_files()` family.
+
+## Bug Fixes
+
+* Fixed `import_eea_monitoring()` and `import_eea_stations()`, which were broken due to upstream changes.
+
 # euroaq 0.1.3
 
 ## Breaking Changes

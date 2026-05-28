@@ -6,14 +6,14 @@
 \alias{import_eea_pollutants}
 \title{Import metadata files from the EEA Air Quality Download Service}
 \usage{
-import_eea_cities(country)
+import_eea_cities(countries)
 
 import_eea_countries()
 
 import_eea_pollutants()
 }
 \arguments{
-\item{country}{A vector of country codes from \code{\link[=import_eea_countries]{import_eea_countries()}}. Only
+\item{countries}{A vector of country codes from \code{\link[=import_eea_countries]{import_eea_countries()}}. Only
 used in \code{\link[=import_eea_cities]{import_eea_cities()}}.}
 }
 \value{

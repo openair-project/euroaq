@@ -1,4 +1,4 @@
-#' Conveniently import European Air Quality data into R
+#' Conveniently import European Air Quality monitoring data into R
 #'
 #' This function is a convenient way to use EEA AQ monitoring data in an R
 #' session. It calls [get_eea_parquet_files()] or [get_eea_parquet_urls()],
@@ -36,7 +36,7 @@ import_eea_monitoring <-
     .endpoint <- rlang::arg_match(.endpoint, multiple = FALSE)
 
     # import metadata
-    meta <- import_eea_stations()
+    meta <- import_eea_stations(countries = countries)
 
     # if no cities, find out which cities are in the country
     if (is.null(cities)) {
@@ -165,6 +165,22 @@ import_eea_monitoring_urls <- function(
 
 #' @noRd
 format_monitoring <- function(table, meta) {
+  browser()
+
+  meta <-
+    tidyr::separate_wider_delim(
+      meta,
+      "sampling_point_id",
+      delim = "_",
+      names = c("id1", "id2", "idextra"),
+      too_many = "merge"
+    ) |>
+    dplyr::mutate(
+      id1 = gsub("\\.", "_", .data$id1),
+      sampling_point_id = paste(.data$id1, .data$id2, sep = "_")
+    ) |>
+    dplyr::select(-"id1", -"id2", -"idextra")
+
   # split samplingpoint into country & id
   table <-
     tidyr::separate_wider_delim(

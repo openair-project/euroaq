@@ -2,7 +2,7 @@
 % Please edit documentation in R/import_eea_monitoring.R
 \name{import_eea_monitoring}
 \alias{import_eea_monitoring}
-\title{Conveniently import European Air Quality data into R}
+\title{Conveniently import European Air Quality monitoring data into R}
 \usage{
 import_eea_monitoring(
   countries = "AD",
@@ -42,7 +42,10 @@ the beginning of the year.
 \item Verified data (E1a) from 2013, reported by countries by 30 September
 each year for the previous year.
 \item Historical Airbase data delivered between 2002 and 2012 before Air
-Quality Directive 2008/50/EC entered into force
+Quality Directive 2008/50/EC entered into force.
+\item Downscaled CAMS forecast at station level.
+\item Gap-filled E2a, using linear interpolation for smaller gaps, and a
+regressor based on similar stations for larger ones.
 }}
 
 \item{aggregation_type}{represents whether the data collected is obtaining
