@@ -165,8 +165,6 @@ import_eea_monitoring_urls <- function(
 
 #' @noRd
 format_monitoring <- function(table, meta) {
-  browser()
-
   meta <-
     tidyr::separate_wider_delim(
       meta,
