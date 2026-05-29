@@ -165,20 +165,6 @@ import_eea_monitoring_urls <- function(
 
 #' @noRd
 format_monitoring <- function(table, meta) {
-  meta <-
-    tidyr::separate_wider_delim(
-      meta,
-      "sampling_point_id",
-      delim = "_",
-      names = c("id1", "id2", "idextra"),
-      too_many = "merge"
-    ) |>
-    dplyr::mutate(
-      id1 = gsub("\\.", "_", .data$id1),
-      sampling_point_id = paste(.data$id1, .data$id2, sep = "_")
-    ) |>
-    dplyr::select(-"id1", -"id2", -"idextra")
-
   # split samplingpoint into country & id
   table <-
     tidyr::separate_wider_delim(
@@ -240,5 +226,7 @@ tz_ea_to_olson <- function(x) {
     return(x)
   }
   tz <- gsub("UTC", "Etc/GMT", x)
-  gsub("\\+0", "\\+", tz)
+  tz <- gsub("\\+0", "\\+", tz)
+  tz <- gsub("\\-0", "\\-", tz)
+  tz
 }
