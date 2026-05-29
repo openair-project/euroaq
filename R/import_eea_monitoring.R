@@ -204,7 +204,12 @@ format_monitoring <- function(table, meta) {
       "area" = "air_quality_station_area",
       "type" = "air_quality_station_type"
     ) |>
-    dplyr::mutate(
+    tidyr::unite(col = "type", "area", "type", sep = " ")
+
+  # set timezones
+  if (nrow(out) > 0) {
+    out <- dplyr::mutate(
+      out,
       date = lubridate::force_tz(
         .data$date,
         tzone = tz_ea_to_olson(.data$timezone)
@@ -213,8 +218,8 @@ format_monitoring <- function(table, meta) {
         .data$date_end,
         tzone = tz_ea_to_olson(.data$timezone)
       )
-    ) |>
-    tidyr::unite(col = "type", "area", "type", sep = " ")
+    )
+  }
 
   return(out)
 }
