@@ -96,6 +96,12 @@ session. It calls \code{\link[=get_eea_parquet_files]{get_eea_parquet_files()}} 
 reads each file using \code{\link[arrow:read_parquet]{arrow::read_parquet()}}, removes unnecessary columns,
 and merges useful columns from \code{\link[=import_eea_stations]{import_eea_stations()}}.
 }
+\details{
+Note that the station metadata is obtained from a different source to the
+monitoring data, which may occasionally be unavailable. If so, a warning is
+given and the monitoring data is returned without site information (e.g.,
+\code{site}, \code{lat} and \code{lng}), and daily data is assumed to be in UTC+01.
+}
 \author{
 Jack Davison
 }

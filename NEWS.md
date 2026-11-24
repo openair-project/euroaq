@@ -52,7 +52,9 @@
 
   * `import_eea_raster()` gives an informative error.
 
-* `import_eea_monitoring()` no longer fails if station metadata is unavailable for some or all sampling points. Instead, it warns and returns the data without site information (e.g., `site`, `lat` and `lng`) for those sampling points. `import_eea_stations()` warns, rather than fails, when no metadata can be found for a country.
+* `import_eea_monitoring()` no longer fails if station metadata is unavailable, either because it cannot be downloaded or because some sampling points are missing from it. Instead, it warns and returns the data without site information (e.g., `site`, `lat` and `lng`) for those sampling points. Station metadata is also now only downloaded after the monitoring data, and not at all if no monitoring data is returned.
+
+* `import_eea_stations()` now gives an error of class `euroaq_stations_unavailable` if the metadata cannot be downloaded, and warns, rather than fails, when no metadata can be found for a country.
 
 * `get_eea_parquet_urls()` now strips the byte-order mark from the start of the API's response, making it more robust.
 

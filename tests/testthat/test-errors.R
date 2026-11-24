@@ -101,10 +101,7 @@ test_that("format_monitoring() joins station metadata", {
 })
 
 test_that("format_monitoring() works without any station metadata", {
-  expect_warning(
-    out <- format_monitoring(example_table(), dplyr::tibble()),
-    "2 sampling points"
-  )
+  expect_silent(out <- format_monitoring(example_table(), dplyr::tibble()))
 
   expect_named(out, monitoring_names)
   expect_identical(nrow(out), 2L)

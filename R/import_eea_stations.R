@@ -47,10 +47,12 @@ import_eea_stations <- function(
     country_codes$country_code %in% countries
   ]
 
+  # lapply() rather than purrr::map(), so that errors are not wrapped and can
+  # be caught by their class in import_eea_monitoring()
   meta <-
-    purrr::map(
-      .x = countries,
-      .f = \(x) {
+    lapply(
+      X = countries,
+      FUN = \(x) {
         zip_path <- tempfile("euroaq_dataflowd_", fileext = ".zip")
         dir_path <- tempfile("euroaq_dataflowd_")
         on.exit(
@@ -58,23 +60,32 @@ import_eea_stations <- function(
           add = TRUE
         )
 
-        httr2::request(
-          "https://discomap.eea.europa.eu/App/AQViewer/download?fqn=Airquality_Dissem.b2g.measurements&f=csv"
-        ) |>
-          httr2::req_headers(
-            "Content-Type" = "application/json",
-            "Accept" = "application/json, text/*"
-          ) |>
-          httr2::req_body_json(list(
-            Page = 0,
-            RequestFilter = list(
-              Country = list(
-                FieldName = "Country",
-                Values = as.list(x)
+        # this is not a public API, so may fail; give a classed error
+        tryCatch(
+          httr2::request(discomap_url()) |>
+            httr2::req_headers(
+              "Content-Type" = "application/json",
+              "Accept" = "application/json, text/*"
+            ) |>
+            httr2::req_body_json(list(
+              Page = 0,
+              RequestFilter = list(
+                Country = list(
+                  FieldName = "Country",
+                  Values = as.list(x)
+                )
               )
+            )) |>
+            httr2::req_perform(path = zip_path),
+          httr2_error = function(e) {
+            cli::cli_abort(
+              "Station metadata could not be downloaded for {.val {x}}.",
+              class = "euroaq_stations_unavailable",
+              parent = e,
+              call = NULL
             )
-          )) |>
-          httr2::req_perform(path = zip_path)
+          }
+        )
 
         tryCatch(
           utils::unzip(zipfile = zip_path, exdir = dir_path),
@@ -111,4 +122,10 @@ import_eea_stations <- function(
     dplyr::bind_rows()
 
   return(meta)
+}
+
+#' The URL of the (non-public) Dataflow D data viewer download endpoint
+#' @noRd
+discomap_url <- function() {
+  "https://discomap.eea.europa.eu/App/AQViewer/download?fqn=Airquality_Dissem.b2g.measurements&f=csv"
 }

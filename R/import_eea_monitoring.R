@@ -5,6 +5,11 @@
 #' reads each file using [arrow::read_parquet()], removes unnecessary columns,
 #' and merges useful columns from [import_eea_stations()].
 #'
+#' Note that the station metadata is obtained from a different source to the
+#' monitoring data, which may occasionally be unavailable. If so, a warning is
+#' given and the monitoring data is returned without site information (e.g.,
+#' `site`, `lat` and `lng`), and daily data is assumed to be in UTC+01.
+#'
 #' @returns a [tibble][tibble::tibble-package]. The `date` and `date_end`
 #'   columns are `POSIXct` vectors which represent the correct instant in time.
 #'   The EEA reports hourly and variable data in UTC+01 and daily data in the
@@ -63,9 +68,6 @@ import_eea_monitoring <-
       c("hour", "day", "var")
     )
 
-    # import metadata
-    meta <- import_eea_stations(countries = countries)
-
     # read data using different endpoints
     if (.endpoint == "files") {
       table <-
@@ -111,6 +113,9 @@ import_eea_monitoring <-
         ),
         call = NULL
       )
+      meta <- dplyr::tibble()
+    } else {
+      meta <- import_station_meta(countries)
     }
 
     # format data for returning
@@ -119,6 +124,29 @@ import_eea_monitoring <-
     # return data
     return(out)
   }
+
+#' Import station metadata, returning an empty table if it is unavailable
+#'
+#' [import_eea_stations()] uses a non-public endpoint which may be unavailable.
+#' The monitoring data are still useful without it, so warn rather than fail.
+#'
+#' @noRd
+import_station_meta <- function(countries) {
+  tryCatch(
+    import_eea_stations(countries = countries),
+    euroaq_stations_unavailable = function(e) {
+      cli::cli_warn(
+        c(
+          "!" = "Station metadata is currently unavailable, so data will be returned without site information (e.g., {.field site}, {.field lat}, {.field lng}).",
+          "i" = "Daily data will be assumed to be in UTC+01, as station timezones are unknown."
+        ),
+        parent = e,
+        call = NULL
+      )
+      dplyr::tibble()
+    }
+  )
+}
 
 #' @noRd
 import_eea_monitoring_files <- function(
@@ -294,11 +322,12 @@ format_monitoring <- function(table, meta) {
     tidyr::unite(col = "type", "area", "type", sep = " ", na.rm = TRUE) |>
     dplyr::mutate(type = dplyr::na_if(.data$type, ""))
 
-  # warn if any sampling points could not be matched to station metadata
+  # warn if any sampling points could not be matched to station metadata. If
+  # there is no metadata at all, the user will already have been warned.
   unmatched <- unique(table$sampling_point_id[
     !table$sampling_point_id %in% meta$sampling_point_id
   ])
-  if (length(unmatched) > 0L) {
+  if (nrow(meta) > 0L && length(unmatched) > 0L) {
     n_unmatched <- length(unmatched)
     shown <- utils::head(unmatched, 5L)
     cli::cli_warn(
