@@ -25,11 +25,20 @@
 #'   imported.
 #'
 #' @param datetime_start,datetime_end Start and end date times, provided as
-#'   `POSIXct`, `Date` or `integer` R objects. If an `integer` is provided, this
-#'   should represent the year of interest; for `datetime_start` this will be
-#'   represent the first hour of the year and for `datetime_end` it will
-#'   represent the last hour of the year, meaning providing the same integer to
-#'   each will return a year of data.
+#'   `POSIXct`, `Date` or `integer` R objects.
+#'
+#'   - A `POSIXct` represents an exact instant, and its timezone is respected.
+#'
+#'   - A `Date` represents a whole day; `datetime_end` includes all of the given
+#'   day, meaning providing the same `Date` to each will return a day of data.
+#'
+#'   - An `integer` represents a whole year; `datetime_end` includes all of the
+#'   given year, meaning providing the same integer to each will return a year
+#'   of data.
+#'
+#'   Note that the EEA reports hourly data in UTC+01, so `Date` and `integer`
+#'   inputs will define days and years in UTC+01 for hourly data, and in the
+#'   local time of each station for daily data.
 #'
 #' @param dataset The value of the dataset. One of:
 #'

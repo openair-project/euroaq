@@ -31,8 +31,9 @@ Suggests:
     rmarkdown,
     spelling,
     terra,
-    testthat (>= 3.0.0)
-VignetteBuilder: 
+    testthat (>= 3.0.0),
+    withr
+VignetteBuilder:
     knitr
 Config/Needs/website: openair-project/openairpkgdown
 Config/roxygen2/version: 8.1.1

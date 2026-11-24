@@ -29,11 +29,19 @@ import_eea_monitoring(
 imported.}
 
 \item{datetime_start, datetime_end}{Start and end date times, provided as
-\code{POSIXct}, \code{Date} or \code{integer} R objects. If an \code{integer} is provided, this
-should represent the year of interest; for \code{datetime_start} this will be
-represent the first hour of the year and for \code{datetime_end} it will
-represent the last hour of the year, meaning providing the same integer to
-each will return a year of data.}
+\code{POSIXct}, \code{Date} or \code{integer} R objects.
+\itemize{
+\item A \code{POSIXct} represents an exact instant, and its timezone is respected.
+\item A \code{Date} represents a whole day; \code{datetime_end} includes all of the given
+day, meaning providing the same \code{Date} to each will return a day of data.
+\item An \code{integer} represents a whole year; \code{datetime_end} includes all of the
+given year, meaning providing the same integer to each will return a year
+of data.
+}
+
+Note that the EEA reports hourly data in UTC+01, so \code{Date} and \code{integer}
+inputs will define days and years in UTC+01 for hourly data, and in the
+local time of each station for daily data.}
 
 \item{dataset}{The value of the dataset. One of:
 \enumerate{
@@ -67,7 +75,13 @@ weekly, monthly, etc.) (\code{"var"}).
 }}
 }
 \value{
-a \link[tibble:tibble-package]{tibble}
+a \link[tibble:tibble-package]{tibble}. The \code{date} and \code{date_end}
+columns are \code{POSIXct} vectors which represent the correct instant in time.
+The EEA reports hourly and variable data in UTC+01 and daily data in the
+local time of each station; the \code{timezone} column records which of these
+applies to each row. If all rows share the same timezone, \code{date} and
+\code{date_end} will be displayed in it, otherwise they will be displayed in
+UTC.
 }
 \description{
 This function is a convenient way to use EEA AQ monitoring data in an R

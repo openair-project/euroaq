@@ -24,11 +24,15 @@ If \code{NULL}, data from all cities in the given \code{country} will be importe
 (e.g., \code{"pm10"}).}
 
 \item{datetime_start, datetime_end}{Start and end date times, provided as
-\code{POSIXct}, \code{Date} or \code{integer} R objects. If an \code{integer} is provided, this
-should represent the year of interest; for \code{datetime_start} this will be
-represent the first hour of the year and for \code{datetime_end} it will
-represent the last hour of the year, meaning providing the same integer to
-each will return a year of data.}
+\code{POSIXct}, \code{Date} or \code{integer} R objects.
+\itemize{
+\item A \code{POSIXct} represents an exact instant, and its timezone is respected.
+\item A \code{Date} represents a whole day; \code{datetime_end} includes all of the given
+day, meaning providing the same \code{Date} to each will return a day of data.
+\item An \code{integer} represents a whole year; \code{datetime_end} includes all of the
+given year, meaning providing the same integer to each will return a year
+of data.
+}}
 
 \item{...}{Not currently used.}
 

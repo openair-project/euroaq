@@ -1,6 +1,20 @@
 # euroaq (development version)
 
+## Breaking Changes
+
+* Datetimes are now handled correctly throughout `{euroaq}`, which changes the dates returned by `import_eea_monitoring()` and the data returned by functions with `datetime_start` and `datetime_end` arguments:
+
+  * `import_eea_monitoring()` now assigns the correct timezone to `date` and `date_end`. The EEA reports hourly and variable data in UTC+01 and daily data in the local time of each station, but previously the station's timezone was applied to all data, with the sign of the offset inverted (e.g., "UTC+01" was treated as UTC-01). The result also depended on the timezone of the user's R session. Where a single result contains several timezones, `date` and `date_end` are now displayed in UTC, and the `timezone` column records the timezone of the original data.
+
+  * `POSIXct` values for `datetime_start` and `datetime_end` now refer to the correct instant in time. Previously, their clock time was sent to the API as if it were UTC.
+
+  * `Date` values for `datetime_end` now include the whole of the given day, consistent with integer years. Previously, data for the final day was excluded.
+
+  * `datetime_start` and `datetime_end` now error if given anything other than a single `POSIXct`, `Date` or whole number. Previously, other inputs (e.g., a character string) silently removed the temporal filter.
+
 ## Bug Fixes
+
+* `import_eea_monitoring()` no longer always warns that dates may fall outside of the requested range when `.endpoint = "urls"`; the warning is now only given if `datetime_start` or `datetime_end` are provided.
 
 * `import_eea_monitoring()` no longer drops sampling points outside of cities when `cities = NULL`. Previously, all of the cities in the given `countries` were passed to the API, which excluded any sampling point not within a city (e.g., roughly half of the sampling points in France). An empty list of cities is now passed, which the API treats as "all".
 

@@ -5,7 +5,13 @@
 #' reads each file using [arrow::read_parquet()], removes unnecessary columns,
 #' and merges useful columns from [import_eea_stations()].
 #'
-#' @returns a [tibble][tibble::tibble-package]
+#' @returns a [tibble][tibble::tibble-package]. The `date` and `date_end`
+#'   columns are `POSIXct` vectors which represent the correct instant in time.
+#'   The EEA reports hourly and variable data in UTC+01 and daily data in the
+#'   local time of each station; the `timezone` column records which of these
+#'   applies to each row. If all rows share the same timezone, `date` and
+#'   `date_end` will be displayed in it, otherwise they will be displayed in
+#'   UTC.
 #'
 #' @inheritParams get_eea_parquet_urls
 #'
@@ -52,7 +58,7 @@ import_eea_monitoring <-
         )
     } else if (.endpoint == "urls") {
       if (
-        !rlang::is_missing(datetime_start) || !rlang::is_missing(datetime_end)
+        !missing(datetime_start) || !missing(datetime_end)
       ) {
         cli::cli_warn(
           c(
@@ -198,31 +204,90 @@ format_monitoring <- function(table, meta) {
     tidyr::unite(col = "type", "area", "type", sep = " ")
 
   # set timezones
-  if (nrow(out) > 0) {
-    out <- dplyr::mutate(
-      out,
-      date = lubridate::force_tz(
-        .data$date,
-        tzone = tz_ea_to_olson(.data$timezone)
-      ),
-      date_end = lubridate::force_tz(
-        .data$date_end,
-        tzone = tz_ea_to_olson(.data$timezone)
-      )
-    )
-  }
+  out <- set_monitoring_timezones(out)
 
   return(out)
 }
 
-#' Reformat EA timezones to `OlsonNames()`
+#' Assign the correct timezones to monitoring data
+#'
+#' {arrow} reads the timezone-less `Start` and `End` columns as if their clock
+#' times were UTC. Hourly and variable data are actually reported in UTC+1,
+#' and daily data in the timezone reported by each station. This function
+#' reinterprets each clock time in its correct timezone, then expresses all of
+#' them in a single timezone, as a `POSIXct` vector can only have one. The
+#' `timezone` column is updated to describe the clock times in the files.
+#'
+#' @noRd
+set_monitoring_timezones <- function(out) {
+  # timezone-less times are read as UTC clock times; make that explicit
+  attr(out$date, "tzone") <- "UTC"
+  attr(out$date_end, "tzone") <- "UTC"
+
+  if (nrow(out) == 0) {
+    return(out)
+  }
+
+  # hourly & var data are in UTC+1, daily data are in the station timezone
+  is_daily <- out$aggregation %in% "day"
+  ea_tz <- ifelse(is_daily, out$timezone, "UTC+01")
+
+  olson_tz <- tz_ea_to_olson(ea_tz)
+
+  # fall back to UTC+1 if the station timezone is unknown or unrecognised
+  unknown <- is.na(olson_tz)
+  if (any(unknown)) {
+    bad <- unique(ea_tz[unknown])
+    bad[is.na(bad)] <- "NA"
+    cli::cli_warn(
+      c(
+        "!" = "Could not determine the timezone of {sum(unknown)} row{?s} of daily data.",
+        "i" = "Unrecognised timezone{?s}: {.val {bad}}.",
+        "i" = "Assuming UTC+01 for these rows."
+      ),
+      call = NULL
+    )
+    ea_tz[unknown] <- "UTC+01"
+    olson_tz[unknown] <- "Etc/GMT-1"
+  }
+
+  # use a single timezone if possible, otherwise UTC
+  tz_out <- unique(olson_tz)
+  if (length(tz_out) > 1L) {
+    tz_out <- "UTC"
+  }
+
+  out$date <- lubridate::force_tzs(
+    out$date,
+    tzones = olson_tz,
+    tzone_out = tz_out
+  )
+  out$date_end <- lubridate::force_tzs(
+    out$date_end,
+    tzones = olson_tz,
+    tzone_out = tz_out
+  )
+  out$timezone <- ea_tz
+
+  out
+}
+
+#' Reformat EEA timezones (e.g., "UTC+01") to `OlsonNames()`
+#'
+#' Note that the sign of "Etc/GMT" timezones is inverted, i.e., "UTC+01" is
+#' "Etc/GMT-1". Returns `NA` for anything unrecognised.
+#'
 #' @noRd
 tz_ea_to_olson <- function(x) {
-  if (all(x == "UTC")) {
-    return(x)
-  }
-  tz <- gsub("UTC", "Etc/GMT", x)
-  tz <- gsub("\\+0", "\\+", tz)
-  tz <- gsub("\\-0", "\\-", tz)
-  tz
+  ok <- !is.na(x) & grepl("^UTC([+-]\\d{1,2}(:?00)?)?$", x)
+  sign <- sub("^UTC([+-]?).*$", "\\1", x)
+  hours <- suppressWarnings(as.integer(sub("^UTC[+-]?(\\d*).*$", "\\1", x)))
+
+  out <- ifelse(
+    is.na(hours) | hours == 0L,
+    "UTC",
+    paste0("Etc/GMT", ifelse(sign == "+", "-", "+"), hours)
+  )
+  out[!ok] <- NA_character_
+  out
 }
