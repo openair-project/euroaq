@@ -1,4 +1,4 @@
-# euroaq (development version)
+# euroaq 0.3.0
 
 ## Breaking Changes
 
