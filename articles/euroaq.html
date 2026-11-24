@@ -7,8 +7,8 @@
 <title>Importing EEA AQ Data with {euroaq} • euroaq</title>
 <script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Nunito_Sans-0.4.10/font.css" rel="stylesheet">
-<link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Nunito_Sans-0.5.0/font.css" rel="stylesheet">
+<link href="../deps/JetBrains_Mono-0.5.0/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Importing EEA AQ Data with {euroaq}">
@@ -21,7 +21,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">euroaq</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,49 +90,102 @@
 <h2 id="monitoring-data">Monitoring Data<a class="anchor" aria-label="anchor" href="#monitoring-data"></a>
 </h2>
 <div class="section level3">
-<h3 id="downloading-data">Downloading Data<a class="anchor" aria-label="anchor" href="#downloading-data"></a>
+<h3 id="metadata">Metadata<a class="anchor" aria-label="anchor" href="#metadata"></a>
 </h3>
 <p>Before you download any data, it may be useful to access some key
 metadata. The following functions are available to do so:</p>
 <ul>
-<li><p><code>import_eea_stations(countries = "FR")</code> accesses data
-flow D (station metadata). Note that one or more countries must be
-specified.</p></li>
+<li><p><code><a href="../reference/eea-metadata.html">import_eea_countries()</a></code> accesses country names and
+codes.</p></li>
+<li><p><code>import_eea_cities(countries = "FR")</code> accesses city
+names in a given country or countries. Note that cities are defined by
+the EEA using ‘Urban Audit’ boundaries, which may extend beyond a city’s
+administrative area.</p></li>
 <li><p><code><a href="../reference/eea-metadata.html">import_eea_pollutants()</a></code> accesses pollutant names and
 identifiers.</p></li>
-<li><p><code><a href="../reference/eea-metadata.html">import_eea_countries()</a></code> accesses country names and
-identifiers.</p></li>
-<li><p><code>import_eea_cities(countries = "FR")</code> accesses city
-names in a given country or countries.</p></li>
+<li><p><code>import_eea_stations(countries = "FR")</code> accesses data
+flow D (station metadata), such as site names, locations and station
+types. Note that one or more countries must be specified. This metadata
+comes from a different source to the rest of the package, which is not a
+public API, so may occasionally be unavailable.</p></li>
 </ul>
 <p>Each of these functions will return R data frames, making them
 convenient for further analysis and filtering.</p>
+</div>
+<div class="section level3">
+<h3 id="downloading-data">Downloading Data<a class="anchor" aria-label="anchor" href="#downloading-data"></a>
+</h3>
 <p>To actually download data, you may use
-<code><a href="../reference/import_eea_monitoring.html">import_eea_monitoring()</a></code>. This function has four main
+<code><a href="../reference/import_eea_monitoring.html">import_eea_monitoring()</a></code>. This function has several main
 arguments:</p>
 <ol style="list-style-type: decimal">
 <li><p><code>countries</code>, requiring a vector of code(s) from
-<code><a href="../reference/eea-metadata.html">import_eea_countries()</a></code>.</p></li>
-<li><p><code>cities</code>, requiring a vector of code(s) from
-<code><a href="../reference/eea-metadata.html">import_eea_cities()</a></code>.</p></li>
-<li><p><code>pollutants</code>, requiring a vector of code(s) from
-<code><a href="../reference/eea-metadata.html">import_eea_pollutants()</a></code>.</p></li>
+<code><a href="../reference/eea-metadata.html">import_eea_countries()</a></code>. At least one country must be
+provided.</p></li>
+<li><p><code>cities</code>, requiring a vector of name(s) from
+<code><a href="../reference/eea-metadata.html">import_eea_cities()</a></code>. If <code>NULL</code>, data from all
+sampling points in the given countries will be imported, including those
+outside of any city.</p></li>
+<li><p><code>pollutants</code>, requiring a vector of pollutant
+notation(s) from <code><a href="../reference/eea-metadata.html">import_eea_pollutants()</a></code>, such as
+<code>"NO2"</code> or <code>"PM10"</code>. If <code>NULL</code>, all
+pollutants will be imported.</p></li>
+<li><p><code>datetime_start</code> and <code>datetime_end</code>, which
+define the period of interest. These can be years (e.g.,
+<code>2024</code>), dates (e.g., <code>as.Date("2024-06-30")</code>) or
+exact date-times (e.g.,
+<code>as.POSIXct("2024-06-30 12:00", tz = "Europe/Paris")</code>). Years
+and dates are inclusive, so <code>datetime_start = 2024</code> and
+<code>datetime_end = 2024</code> will return the whole of 2024.</p></li>
 <li><p><code>dataset</code>, requiring a value of either <code>1</code>
-(unratified, up-to-date data from data flow E2a), <code>2</code>
-(ratified data from data flow E1a), <code>3</code> (Historical Airbase
-data), <code>4</code>, (Downscaled CAMS forecast at station level) or
-<code>5</code> (Gap-filled E2a, using linear interpolation for smaller
-gaps, and a regressor based on similar stations for larger
-ones).</p></li>
+(unverified, up-to-date data from data flow E2a), <code>2</code>
+(verified data from data flow E1a), <code>3</code> (historical Airbase
+data), <code>4</code> (CAMS forecasts, downscaled to monitoring
+stations) or <code>5</code> (gap-filled E2a data).</p></li>
+<li><p><code>aggregation_type</code>, one of <code>"hour"</code>,
+<code>"day"</code> or <code>"var"</code> (variable intervals, such as
+weekly or monthly).</p></li>
 </ol>
-<p>It is recommended that users provide at least one country, as leaving
-this as <code>NULL</code> is likely to import more data than a typical R
-session can handle.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/openair-project/euroaq" class="external-link">euroaq</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">aqdata</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import_eea_monitoring.html">import_eea_monitoring</a></span><span class="op">(</span></span>
+<span>  countries <span class="op">=</span> <span class="st">"FR"</span>,</span>
+<span>  cities <span class="op">=</span> <span class="st">"Paris"</span>,</span>
+<span>  pollutants <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"NO2"</span>, <span class="st">"PM10"</span><span class="op">)</span>,</span>
+<span>  datetime_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2024-01-01"</span><span class="op">)</span>,</span>
+<span>  datetime_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2024-01-31"</span><span class="op">)</span>,</span>
+<span>  dataset <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p><code><a href="../reference/import_eea_monitoring.html">import_eea_monitoring()</a></code> is quite an opinionated
-function; it uses a specific method to acquire data, renames columns to
-convenient English names, and binds on commonly useful metadata columns
-from <code><a href="../reference/import_eea_stations.html">import_eea_stations()</a></code>. If a user wants more
-flexibility, they may wish to access the EEA’s API directly.</p>
+function; it renames columns to convenient English names, and binds on
+commonly useful metadata columns from
+<code><a href="../reference/import_eea_stations.html">import_eea_stations()</a></code>. If the station metadata is
+unavailable, it will warn and return the data without this site
+information. If a user wants more flexibility, they may wish to access
+the EEA’s API directly (see below).</p>
+<p>The EEA limits each download to 600MB. If this limit is reached,
+<code><a href="../reference/import_eea_monitoring.html">import_eea_monitoring()</a></code> will warn that the returned data is
+incomplete. In this case, either request less data at once, or use
+<code>.endpoint = "urls"</code>, which isn’t subject to the limit. This
+downloads the complete time series of each sampling point, so is slower
+for short periods, but the data are then filtered to the requested dates
+and aggregation type, so the result is the same.</p>
+</div>
+<div class="section level3">
+<h3 id="timezones">Timezones<a class="anchor" aria-label="anchor" href="#timezones"></a>
+</h3>
+<p>The EEA reports hourly and variable data in UTC+01, and daily data in
+the local time of each station. <code><a href="../reference/import_eea_monitoring.html">import_eea_monitoring()</a></code>
+accounts for this, so the <code>date</code> and <code>date_end</code>
+columns always represent the correct instant in time, and the
+<code>timezone</code> column records the timezone each row was reported
+in. If all rows share a single timezone (e.g., all hourly data) the
+dates are displayed in that timezone; otherwise they are displayed in
+UTC.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># convert to another timezone for display, if desired</span></span>
+<span><span class="va">aqdata</span><span class="op">$</span><span class="va">date</span> <span class="op">&lt;-</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/with_tz.html" class="external-link">with_tz</a></span><span class="op">(</span><span class="va">aqdata</span><span class="op">$</span><span class="va">date</span>, <span class="st">"Europe/Paris"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="data-access-via-api-endpoints">Data Access via API Endpoints<a class="anchor" aria-label="anchor" href="#data-access-via-api-endpoints"></a>
@@ -148,48 +201,64 @@ start and end date, as well as an aggregation type.</p>
 <code><a href="../reference/get-parquet.html">get_eea_parquet_files()</a></code> will download a zip folder of
 parquet files to a user-specified file, returning the file path.</li>
 </ul>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/get-parquet.html">get_eea_parquet_files</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">"mydata.zip"</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/get-parquet.html">get_eea_parquet_files</a></span><span class="op">(</span>countries <span class="op">=</span> <span class="st">"FR"</span>, file <span class="op">=</span> <span class="st">"mydata.zip"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">zip</span><span class="fu">::</span><span class="fu">unzip</span><span class="op">(</span>zipfile <span class="op">=</span> <span class="st">"mydata.zip"</span>, exdir <span class="op">=</span> <span class="st">"parquets"</span><span class="op">)</span></span>
+<span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/unzip.html" class="external-link">unzip</a></span><span class="op">(</span>zipfile <span class="op">=</span> <span class="st">"mydata.zip"</span>, exdir <span class="op">=</span> <span class="st">"parquets"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">paths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">dir</a></span><span class="op">(</span><span class="st">"parquets"</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">tables</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span>.x <span class="op">=</span> <span class="va">paths</span>, .f <span class="op">=</span> <span class="fu">arrow</span><span class="fu">::</span><span class="va"><a href="https://arrow.apache.org/docs/r/reference/read_parquet.html" class="external-link">read_parquet</a></span><span class="op">)</span></span>
+<span><span class="va">tables</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">paths</span>, <span class="fu">arrow</span><span class="fu">::</span><span class="va"><a href="https://arrow.apache.org/docs/r/reference/read_parquet.html" class="external-link">read_parquet</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">aqdata</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">tables</span><span class="op">)</span></span></code></pre></div>
 <ul>
 <li>
 <code><a href="../reference/get-parquet.html">get_eea_parquet_async()</a></code> will initiate the construction
-of a zip folder of parquet files and returns a URL at which a zip file
-will be eventually available.</li>
+of a zip folder of parquet files in the background, and returns a URL at
+which the zip file will be made available. This is more suitable for
+larger requests. The file won’t exist straight away, so one approach is
+to check the URL periodically until it does.</li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">zippath</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get-parquet.html">get_eea_parquet_async</a></span><span class="op">(</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">zipurl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get-parquet.html">get_eea_parquet_async</a></span><span class="op">(</span>countries <span class="op">=</span> <span class="st">"FR"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># wait for zip to be populated</span></span>
+<span><span class="co"># check every 20 seconds for up to an hour until the file is available</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">180</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">resp</span> <span class="op">&lt;-</span> <span class="fu">httr2</span><span class="fu">::</span><span class="fu"><a href="https://httr2.r-lib.org/reference/request.html" class="external-link">request</a></span><span class="op">(</span><span class="va">zipurl</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">httr2</span><span class="fu">::</span><span class="fu"><a href="https://httr2.r-lib.org/reference/req_error.html" class="external-link">req_error</a></span><span class="op">(</span>is_error <span class="op">=</span> \<span class="op">(</span><span class="va">resp</span><span class="op">)</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">httr2</span><span class="fu">::</span><span class="fu"><a href="https://httr2.r-lib.org/reference/req_perform.html" class="external-link">req_perform</a></span><span class="op">(</span>path <span class="op">=</span> <span class="st">"mydata.zip"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">download.file</a></span><span class="op">(</span>url <span class="op">=</span> <span class="va">zippath</span>, destfile <span class="op">=</span> <span class="st">"mydata.zip"</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu">httr2</span><span class="fu">::</span><span class="fu"><a href="https://httr2.r-lib.org/reference/resp_status.html" class="external-link">resp_status</a></span><span class="op">(</span><span class="va">resp</span><span class="op">)</span> <span class="op">!=</span> <span class="fl">404</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="kw">break</span></span>
+<span>  <span class="op">}</span></span>
 <span></span>
-<span><span class="fu">zip</span><span class="fu">::</span><span class="fu">unzip</span><span class="op">(</span>zipfile <span class="op">=</span> <span class="st">"mydata.zip"</span>, exdir <span class="op">=</span> <span class="st">"parquets"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/Sys.sleep.html" class="external-link">Sys.sleep</a></span><span class="op">(</span><span class="fl">20</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/unzip.html" class="external-link">unzip</a></span><span class="op">(</span>zipfile <span class="op">=</span> <span class="st">"mydata.zip"</span>, exdir <span class="op">=</span> <span class="st">"parquets"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">paths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">dir</a></span><span class="op">(</span><span class="st">"parquets"</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">tables</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span>.x <span class="op">=</span> <span class="va">paths</span>, .f <span class="op">=</span> <span class="fu">arrow</span><span class="fu">::</span><span class="va"><a href="https://arrow.apache.org/docs/r/reference/read_parquet.html" class="external-link">read_parquet</a></span><span class="op">)</span></span>
+<span><span class="va">tables</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">paths</span>, <span class="fu">arrow</span><span class="fu">::</span><span class="va"><a href="https://arrow.apache.org/docs/r/reference/read_parquet.html" class="external-link">read_parquet</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">aqdata</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">tables</span><span class="op">)</span></span></code></pre></div>
 <ul>
 <li>
 <code><a href="../reference/get-parquet.html">get_eea_parquet_urls()</a></code> will return an R character
-vector of a list of URLs at which individual parquet files can be found.
-This function ignores the datetime and aggregation type arguments.</li>
+vector of URLs at which individual parquet files can be found. Each
+parquet file contains the complete time series of a single sampling
+point, so this function ignores the datetime and aggregation type
+arguments.</li>
 </ul>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">urls</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get-parquet.html">get_eea_parquet_urls</a></span><span class="op">(</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">urls</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get-parquet.html">get_eea_parquet_urls</a></span><span class="op">(</span>countries <span class="op">=</span> <span class="st">"FR"</span>, pollutants <span class="op">=</span> <span class="st">"NO2"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">tables</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span>.x <span class="op">=</span> <span class="va">urls</span>, .f <span class="op">=</span> <span class="fu">arrow</span><span class="fu">::</span><span class="va"><a href="https://arrow.apache.org/docs/r/reference/read_parquet.html" class="external-link">read_parquet</a></span><span class="op">)</span></span>
+<span><span class="va">tables</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">urls</span>, <span class="fu">arrow</span><span class="fu">::</span><span class="va"><a href="https://arrow.apache.org/docs/r/reference/read_parquet.html" class="external-link">read_parquet</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">aqdata</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">tables</span><span class="op">)</span></span></code></pre></div>
+<p>Note that the parquet files contain timezone-less ‘clock times’. As
+described above, hourly data are in UTC+01 and daily data are in the
+local time of each station.</p>
 </div>
 </div>
 <div class="section level2">
@@ -199,11 +268,12 @@ This function ignores the datetime and aggregation type arguments.</li>
 <code>dataset = 4</code> in the already discussed functions.
 Additionally, the EEA Download Portal gives access to complete forecast
 maps of downscaled CAMS data, for entire countries or capital cities, in
-raster format. There are two ways to access this:</p>
+raster format. These are available for NO2, O3, PM10 and PM2.5, and only
+for recent dates. There are two ways to access this:</p>
 <ul>
 <li><p>Most conveniently, a user can use
 <code><a href="../reference/import_eea_raster.html">import_eea_raster()</a></code> which downloads the requested raster
-files and reads them into R. This required the <a href="https://rspatial.org/" class="external-link">terra</a>
+files and reads them into R. This requires the <a href="https://rspatial.org/" class="external-link">terra</a>
 package.</p></li>
 <li><p>For more flexibility, lower-level API functions are provided -
 <code><a href="../reference/get-raster.html">get_eea_raster_files()</a></code> and
@@ -212,9 +282,25 @@ package.</p></li>
 <code><a href="../reference/get-parquet.html">get_eea_parquet_async()</a></code> equivalents, already
 discussed.</p></li>
 </ul>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># read into R</span></span>
-<span><span class="va">fr_rast</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import_eea_raster.html">import_eea_raster</a></span><span class="op">(</span><span class="st">"FR"</span>, <span class="st">"Paris"</span>, pollutants <span class="op">=</span> <span class="st">"pm10"</span><span class="op">)</span></span>
+<p>The cities available for rasters can be found using
+<code>import_eea_cities(modelled = TRUE)</code>; currently this is each
+country’s capital city. If no city is provided, the raster will cover
+the entire country.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># which cities are available?</span></span>
+<span><span class="fu"><a href="../reference/eea-metadata.html">import_eea_cities</a></span><span class="op">(</span><span class="st">"FR"</span>, modelled <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># read yesterday's forecast into R</span></span>
+<span><span class="va">fr_rast</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import_eea_raster.html">import_eea_raster</a></span><span class="op">(</span></span>
+<span>  country <span class="op">=</span> <span class="st">"FR"</span>,</span>
+<span>  city <span class="op">=</span> <span class="st">"Paris"</span>,</span>
+<span>  pollutants <span class="op">=</span> <span class="st">"PM10"</span>,</span>
+<span>  datetime_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>,</span>
+<span>  datetime_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># each layer is an hour, in UTC</span></span>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/time.html" class="external-link">time</a></span><span class="op">(</span><span class="va">fr_rast</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># then can plot or analyse further with {terra}</span></span>
 <span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plet.html" class="external-link">plet</a></span><span class="op">(</span><span class="va">fr_rast</span><span class="op">)</span></span></code></pre></div>

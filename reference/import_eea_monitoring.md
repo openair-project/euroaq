@@ -32,7 +32,8 @@ import_eea_monitoring(
 
   A vector of country codes from
   [`import_eea_countries()`](https://openair-project.github.io/euroaq/reference/eea-metadata.md).
-  If `NULL`, data from all countries will be imported.
+  Unlike the `get_eea_parquet_*()` family, at least one country must be
+  provided.
 
 - cities:
 
@@ -50,26 +51,40 @@ import_eea_monitoring(
 - datetime_start, datetime_end:
 
   Start and end date times, provided as `POSIXct`, `Date` or `integer` R
-  objects. If an `integer` is provided, this should represent the year
-  of interest; for `datetime_start` this will be represent the first
-  hour of the year and for `datetime_end` it will represent the last
-  hour of the year, meaning providing the same integer to each will
-  return a year of data.
+  objects.
+
+  - A `POSIXct` represents an exact instant, and its timezone is
+    respected.
+
+  - A `Date` represents a whole day; `datetime_end` includes all of the
+    given day, meaning providing the same `Date` to each will return a
+    day of data.
+
+  - An `integer` represents a whole year; `datetime_end` includes all of
+    the given year, meaning providing the same integer to each will
+    return a year of data.
+
+  Note that the EEA reports hourly data in UTC+01, so `Date` and
+  `integer` inputs will define days and years in UTC+01 for hourly data,
+  and in the local time of each station for daily data.
 
 - dataset:
 
-  The value of the dataset. One of:
+  The dataset to use, as a single integer. One of:
 
-  1.  Unverified data transmitted continuously (Up-To-Date/UTD/E2a) data
-      from the beginning of the year.
+  1.  Unverified data transmitted continuously (Up-To-Date/UTD/E2a),
+      covering the period not yet covered by verified data.
 
-  2.  Verified data (E1a) from 2013, reported by countries by 30
+  2.  Verified data (E1a) from 2013 onwards, reported by countries by 30
       September each year for the previous year.
 
-  3.  Historical Airbase data delivered between 2002 and 2012 before Air
-      Quality Directive 2008/50/EC entered into force.
+  3.  Historical Airbase data delivered between 2002 and 2012, before
+      Air Quality Directive 2008/50/EC entered into force. Note that
+      Airbase uses different sampling point identifiers to datasets 1
+      and 2.
 
-  4.  Downscaled CAMS forecast at station level.
+  4.  CAMS forecasts, downscaled by the EEA to monitoring stations using
+      a 1x1 km grid. Only available for PM10, PM2.5, O3 and NO2.
 
   5.  Gap-filled E2a, using linear interpolation for smaller gaps, and a
       regressor based on similar stations for larger ones.
@@ -87,7 +102,7 @@ import_eea_monitoring(
 
 - ...:
 
-  Not currently used.
+  These dots are for future extensions and must be empty.
 
 - .endpoint:
 
@@ -97,16 +112,31 @@ import_eea_monitoring(
   [`get_eea_parquet_urls()`](https://openair-project.github.io/euroaq/reference/get-parquet.md)
   to use. One of:
 
-  - `"files"`, which can return limited amounts of data but respects
-    `datetime_start` and `datetime_end`.
+  - `"files"`, which is subject to the EEA's 600MB download limit but
+    only downloads data for the requested dates and `aggregation_type`.
 
-  - `"urls"`, which can return much more data which may potentially
-    contain dates outside the `datetime_start` to `datetime_end` range
-    specified.
+  - `"urls"`, which is not subject to the download limit, so can return
+    much more data. However, it downloads the complete time series of
+    each sampling point, which is then filtered to the requested dates
+    and `aggregation_type`, so may be slower for short periods.
 
 ## Value
 
-a [tibble](https://tibble.tidyverse.org/reference/tibble-package.html)
+a [tibble](https://tibble.tidyverse.org/reference/tibble-package.html).
+The `date` and `date_end` columns are `POSIXct` vectors which represent
+the correct instant in time. The EEA reports hourly and variable data in
+UTC+01 and daily data in the local time of each station; the `timezone`
+column records which of these applies to each row. If all rows share the
+same timezone, `date` and `date_end` will be displayed in it, otherwise
+they will be displayed in UTC.
+
+## Details
+
+Note that the station metadata is obtained from a different source to
+the monitoring data, which may occasionally be unavailable. If so, a
+warning is given and the monitoring data is returned without site
+information (e.g., `site`, `lat` and `lng`), and daily data is assumed
+to be in UTC+01.
 
 ## Author
 

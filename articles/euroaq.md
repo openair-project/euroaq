@@ -2,57 +2,113 @@
 
 ## Monitoring Data
 
-### Downloading Data
+### Metadata
 
 Before you download any data, it may be useful to access some key
 metadata. The following functions are available to do so:
 
-- `import_eea_stations(countries = "FR")` accesses data flow D (station
-  metadata). Note that one or more countries must be specified.
+- [`import_eea_countries()`](https://openair-project.github.io/euroaq/reference/eea-metadata.md)
+  accesses country names and codes.
+
+- `import_eea_cities(countries = "FR")` accesses city names in a given
+  country or countries. Note that cities are defined by the EEA using
+  ‘Urban Audit’ boundaries, which may extend beyond a city’s
+  administrative area.
 
 - [`import_eea_pollutants()`](https://openair-project.github.io/euroaq/reference/eea-metadata.md)
   accesses pollutant names and identifiers.
 
-- [`import_eea_countries()`](https://openair-project.github.io/euroaq/reference/eea-metadata.md)
-  accesses country names and identifiers.
-
-- `import_eea_cities(countries = "FR")` accesses city names in a given
-  country or countries.
+- `import_eea_stations(countries = "FR")` accesses data flow D (station
+  metadata), such as site names, locations and station types. Note that
+  one or more countries must be specified. This metadata comes from a
+  different source to the rest of the package, which is not a public
+  API, so may occasionally be unavailable.
 
 Each of these functions will return R data frames, making them
 convenient for further analysis and filtering.
 
+### Downloading Data
+
 To actually download data, you may use
 [`import_eea_monitoring()`](https://openair-project.github.io/euroaq/reference/import_eea_monitoring.md).
-This function has four main arguments:
+This function has several main arguments:
 
 1.  `countries`, requiring a vector of code(s) from
     [`import_eea_countries()`](https://openair-project.github.io/euroaq/reference/eea-metadata.md).
+    At least one country must be provided.
 
-2.  `cities`, requiring a vector of code(s) from
+2.  `cities`, requiring a vector of name(s) from
     [`import_eea_cities()`](https://openair-project.github.io/euroaq/reference/eea-metadata.md).
+    If `NULL`, data from all sampling points in the given countries will
+    be imported, including those outside of any city.
 
-3.  `pollutants`, requiring a vector of code(s) from
-    [`import_eea_pollutants()`](https://openair-project.github.io/euroaq/reference/eea-metadata.md).
+3.  `pollutants`, requiring a vector of pollutant notation(s) from
+    [`import_eea_pollutants()`](https://openair-project.github.io/euroaq/reference/eea-metadata.md),
+    such as `"NO2"` or `"PM10"`. If `NULL`, all pollutants will be
+    imported.
 
-4.  `dataset`, requiring a value of either `1` (unratified, up-to-date
-    data from data flow E2a), `2` (ratified data from data flow E1a),
-    `3` (Historical Airbase data), `4`, (Downscaled CAMS forecast at
-    station level) or `5` (Gap-filled E2a, using linear interpolation
-    for smaller gaps, and a regressor based on similar stations for
-    larger ones).
+4.  `datetime_start` and `datetime_end`, which define the period of
+    interest. These can be years (e.g., `2024`), dates (e.g.,
+    `as.Date("2024-06-30")`) or exact date-times (e.g.,
+    `as.POSIXct("2024-06-30 12:00", tz = "Europe/Paris")`). Years and
+    dates are inclusive, so `datetime_start = 2024` and
+    `datetime_end = 2024` will return the whole of 2024.
 
-It is recommended that users provide at least one country, as leaving
-this as `NULL` is likely to import more data than a typical R session
-can handle.
+5.  `dataset`, requiring a value of either `1` (unverified, up-to-date
+    data from data flow E2a), `2` (verified data from data flow E1a),
+    `3` (historical Airbase data), `4` (CAMS forecasts, downscaled to
+    monitoring stations) or `5` (gap-filled E2a data).
+
+6.  `aggregation_type`, one of `"hour"`, `"day"` or `"var"` (variable
+    intervals, such as weekly or monthly).
+
+``` r
+
+library(euroaq)
+
+aqdata <- import_eea_monitoring(
+  countries = "FR",
+  cities = "Paris",
+  pollutants = c("NO2", "PM10"),
+  datetime_start = as.Date("2024-01-01"),
+  datetime_end = as.Date("2024-01-31"),
+  dataset = 2
+)
+```
 
 [`import_eea_monitoring()`](https://openair-project.github.io/euroaq/reference/import_eea_monitoring.md)
-is quite an opinionated function; it uses a specific method to acquire
-data, renames columns to convenient English names, and binds on commonly
-useful metadata columns from
+is quite an opinionated function; it renames columns to convenient
+English names, and binds on commonly useful metadata columns from
 [`import_eea_stations()`](https://openair-project.github.io/euroaq/reference/import_eea_stations.md).
-If a user wants more flexibility, they may wish to access the EEA’s API
-directly.
+If the station metadata is unavailable, it will warn and return the data
+without this site information. If a user wants more flexibility, they
+may wish to access the EEA’s API directly (see below).
+
+The EEA limits each download to 600MB. If this limit is reached,
+[`import_eea_monitoring()`](https://openair-project.github.io/euroaq/reference/import_eea_monitoring.md)
+will warn that the returned data is incomplete. In this case, either
+request less data at once, or use `.endpoint = "urls"`, which isn’t
+subject to the limit. This downloads the complete time series of each
+sampling point, so is slower for short periods, but the data are then
+filtered to the requested dates and aggregation type, so the result is
+the same.
+
+### Timezones
+
+The EEA reports hourly and variable data in UTC+01, and daily data in
+the local time of each station.
+[`import_eea_monitoring()`](https://openair-project.github.io/euroaq/reference/import_eea_monitoring.md)
+accounts for this, so the `date` and `date_end` columns always represent
+the correct instant in time, and the `timezone` column records the
+timezone each row was reported in. If all rows share a single timezone
+(e.g., all hourly data) the dates are displayed in that timezone;
+otherwise they are displayed in UTC.
+
+``` r
+
+# convert to another timezone for display, if desired
+aqdata$date <- lubridate::with_tz(aqdata$date, "Europe/Paris")
+```
 
 ### Data Access via API Endpoints
 
@@ -70,51 +126,68 @@ date, as well as an aggregation type.
 
 ``` r
 
-get_eea_parquet_files(file = "mydata.zip")
+get_eea_parquet_files(countries = "FR", file = "mydata.zip")
 
-zip::unzip(zipfile = "mydata.zip", exdir = "parquets")
+utils::unzip(zipfile = "mydata.zip", exdir = "parquets")
 
 paths <- dir("parquets", recursive = TRUE, full.names = TRUE)
 
-tables <- purrr::map(.x = paths, .f = arrow::read_parquet)
+tables <- lapply(paths, arrow::read_parquet)
 
 aqdata <- dplyr::bind_rows(tables)
 ```
 
 - [`get_eea_parquet_async()`](https://openair-project.github.io/euroaq/reference/get-parquet.md)
-  will initiate the construction of a zip folder of parquet files and
-  returns a URL at which a zip file will be eventually available.
+  will initiate the construction of a zip folder of parquet files in the
+  background, and returns a URL at which the zip file will be made
+  available. This is more suitable for larger requests. The file won’t
+  exist straight away, so one approach is to check the URL periodically
+  until it does.
 
 ``` r
 
-zippath <- get_eea_parquet_async()
+zipurl <- get_eea_parquet_async(countries = "FR")
 
-# wait for zip to be populated
+# check every 20 seconds for up to an hour until the file is available
+for (i in 1:180) {
+  resp <- httr2::request(zipurl) |>
+    httr2::req_error(is_error = \(resp) FALSE) |>
+    httr2::req_perform(path = "mydata.zip")
 
-download.file(url = zippath, destfile = "mydata.zip")
+  if (httr2::resp_status(resp) != 404) {
+    break
+  }
 
-zip::unzip(zipfile = "mydata.zip", exdir = "parquets")
+  Sys.sleep(20)
+}
+
+utils::unzip(zipfile = "mydata.zip", exdir = "parquets")
 
 paths <- dir("parquets", recursive = TRUE, full.names = TRUE)
 
-tables <- purrr::map(.x = paths, .f = arrow::read_parquet)
+tables <- lapply(paths, arrow::read_parquet)
 
 aqdata <- dplyr::bind_rows(tables)
 ```
 
 - [`get_eea_parquet_urls()`](https://openair-project.github.io/euroaq/reference/get-parquet.md)
-  will return an R character vector of a list of URLs at which
-  individual parquet files can be found. This function ignores the
+  will return an R character vector of URLs at which individual parquet
+  files can be found. Each parquet file contains the complete time
+  series of a single sampling point, so this function ignores the
   datetime and aggregation type arguments.
 
 ``` r
 
-urls <- get_eea_parquet_urls()
+urls <- get_eea_parquet_urls(countries = "FR", pollutants = "NO2")
 
-tables <- purrr::map(.x = urls, .f = arrow::read_parquet)
+tables <- lapply(urls, arrow::read_parquet)
 
 aqdata <- dplyr::bind_rows(tables)
 ```
+
+Note that the parquet files contain timezone-less ‘clock times’. As
+described above, hourly data are in UTC+01 and daily data are in the
+local time of each station.
 
 ## Modelled Data
 
@@ -122,12 +195,13 @@ Modelled data at each monitoring station can be accessed using
 `dataset = 4` in the already discussed functions. Additionally, the EEA
 Download Portal gives access to complete forecast maps of downscaled
 CAMS data, for entire countries or capital cities, in raster format.
-There are two ways to access this:
+These are available for NO2, O3, PM10 and PM2.5, and only for recent
+dates. There are two ways to access this:
 
 - Most conveniently, a user can use
   [`import_eea_raster()`](https://openair-project.github.io/euroaq/reference/import_eea_raster.md)
   which downloads the requested raster files and reads them into R. This
-  required the [terra](https://rspatial.org/) package.
+  requires the [terra](https://rspatial.org/) package.
 
 - For more flexibility, lower-level API functions are provided -
   [`get_eea_raster_files()`](https://openair-project.github.io/euroaq/reference/get-raster.md)
@@ -139,10 +213,27 @@ There are two ways to access this:
   [`get_eea_parquet_async()`](https://openair-project.github.io/euroaq/reference/get-parquet.md)
   equivalents, already discussed.
 
+The cities available for rasters can be found using
+`import_eea_cities(modelled = TRUE)`; currently this is each country’s
+capital city. If no city is provided, the raster will cover the entire
+country.
+
 ``` r
 
-# read into R
-fr_rast <- import_eea_raster("FR", "Paris", pollutants = "pm10")
+# which cities are available?
+import_eea_cities("FR", modelled = TRUE)
+
+# read yesterday's forecast into R
+fr_rast <- import_eea_raster(
+  country = "FR",
+  city = "Paris",
+  pollutants = "PM10",
+  datetime_start = Sys.Date() - 1,
+  datetime_end = Sys.Date() - 1
+)
+
+# each layer is an hour, in UTC
+terra::time(fr_rast)
 
 # then can plot or analyse further with {terra}
 terra::plet(fr_rast)
