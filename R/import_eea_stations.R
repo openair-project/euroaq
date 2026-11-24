@@ -76,7 +76,7 @@ import_eea_stations <- function(
                 )
               )
             )) |>
-            httr2::req_perform(path = zip_path),
+            perform_request(path = zip_path, check = FALSE),
           httr2_error = function(e) {
             cli::cli_abort(
               "Station metadata could not be downloaded for {.val {x}}.",

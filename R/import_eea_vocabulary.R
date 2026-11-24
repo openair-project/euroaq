@@ -71,11 +71,7 @@ request_cities <- function(endpoint, countries, ...) {
       "Content-Type" = "application/json"
     ) |>
     httr2::req_body_json(as.list(countries)) |>
-    httr2::req_error(is_error = \(resp) FALSE) |>
-    httr2::req_perform()
-
-  # error if appropriate
-  report_error(resp)
+    perform_request()
 
   httr2::resp_body_json(resp, ...)
 }
@@ -86,11 +82,7 @@ import_eea_countries <- function() {
   # send request
   resp <-
     httr2::request(construct_url("Country")) |>
-    httr2::req_error(is_error = \(resp) FALSE) |>
-    httr2::req_perform()
-
-  # error if appropriate
-  report_error(resp)
+    perform_request()
 
   # return
   resp |>
@@ -105,11 +97,7 @@ import_eea_pollutants <- function() {
   # send request
   resp <-
     httr2::request(construct_url("Pollutant")) |>
-    httr2::req_error(is_error = \(resp) FALSE) |>
-    httr2::req_perform()
-
-  # error if appropriate
-  report_error(resp)
+    perform_request()
 
   # create return table
   pollutants <-

@@ -73,12 +73,12 @@ weekly, monthly, etc.) (\code{"var"}).
 \item{.endpoint}{Which of \code{\link[=get_eea_parquet_files]{get_eea_parquet_files()}} or
 \code{\link[=get_eea_parquet_urls]{get_eea_parquet_urls()}} to use. One of:
 \itemize{
-\item \code{"files"}, which can return limited amounts of data but respects
-\code{datetime_start}, \code{datetime_end} and \code{aggregation_type}.
-\item \code{"urls"}, which can return much more data, but returns the complete time
-series of each sampling point. The returned data may therefore contain
-dates outside the \code{datetime_start} to \code{datetime_end} range, and
-aggregation types other than \code{aggregation_type}.
+\item \code{"files"}, which is subject to the EEA's 600MB download limit but only
+downloads data for the requested dates and \code{aggregation_type}.
+\item \code{"urls"}, which is not subject to the download limit, so can return
+much more data. However, it downloads the complete time series of each
+sampling point, which is then filtered to the requested dates and
+\code{aggregation_type}, so may be slower for short periods.
 }}
 }
 \value{

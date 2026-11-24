@@ -82,6 +82,44 @@ check_dataset <- function(dataset, arg = rlang::caller_arg(dataset)) {
   invisible(dataset)
 }
 
+#' Perform an API request, retrying temporary failures
+#'
+#' Retries connection failures and the status codes the EEA services return
+#' when they are temporarily unavailable (e.g., 502 Bad Gateway, 504 Gateway
+#' Timeout) up to three times, with an increasing delay between each try.
+#'
+#' @param req An httr2 request.
+#' @param path Optionally, a file to write the response body to.
+#' @param check If `TRUE`, the response is checked using `report_error()`. If
+#'   `FALSE`, httr2's default error handling is used instead.
+#' @param backoff Passed to [httr2::req_retry()]; `NULL` uses httr2's default
+#'   exponential backoff. Only intended to be changed in tests.
+#'
+#' @noRd
+perform_request <- function(req, path = NULL, check = TRUE, backoff = NULL) {
+  req <- httr2::req_retry(
+    req,
+    max_tries = 3L,
+    retry_on_failure = TRUE,
+    is_transient = \(resp) {
+      httr2::resp_status(resp) %in% c(429L, 502L, 503L, 504L)
+    },
+    backoff = backoff
+  )
+
+  if (check) {
+    req <- httr2::req_error(req, is_error = \(resp) FALSE)
+  }
+
+  resp <- httr2::req_perform(req, path = path)
+
+  if (check) {
+    report_error(resp)
+  }
+
+  resp
+}
+
 #' If an API does not return a 2XX code, pass on the body as an error
 #'
 #' Also warns if the API returns a 206 (Partial Content) status, which it uses

@@ -29,13 +29,13 @@
 #' @param .endpoint Which of [get_eea_parquet_files()] or
 #'   [get_eea_parquet_urls()] to use. One of:
 #'
-#'   - `"files"`, which can return limited amounts of data but respects
-#'   `datetime_start`, `datetime_end` and `aggregation_type`.
+#'   - `"files"`, which is subject to the EEA's 600MB download limit but only
+#'   downloads data for the requested dates and `aggregation_type`.
 #'
-#'   - `"urls"`, which can return much more data, but returns the complete time
-#'   series of each sampling point. The returned data may therefore contain
-#'   dates outside the `datetime_start` to `datetime_end` range, and
-#'   aggregation types other than `aggregation_type`.
+#'   - `"urls"`, which is not subject to the download limit, so can return
+#'   much more data. However, it downloads the complete time series of each
+#'   sampling point, which is then filtered to the requested dates and
+#'   `aggregation_type`, so may be slower for short periods.
 #'
 #' @author Jack Davison
 #'
@@ -81,18 +81,6 @@ import_eea_monitoring <-
           aggregation_type
         )
     } else if (.endpoint == "urls") {
-      if (
-        !missing(datetime_start) || !missing(datetime_end)
-      ) {
-        cli::cli_warn(
-          c(
-            "When using the 'urls' endpoint, the data files contain the complete time series covering your choice of country/city, pollutants and dataset. The list of URLs is therefore not limited by the temporal coverage or aggregation type you might have selected. That is, the returned data will potentially contain dates outside the range specified."
-          ),
-          call = NULL,
-          .frequency = "regularly",
-        )
-      }
-
       table <-
         import_eea_monitoring_urls(
           countries,
@@ -118,8 +106,12 @@ import_eea_monitoring <-
       meta <- import_station_meta(countries)
     }
 
+    # pollutant names are obtained from the API, as the station metadata may be
+    # unavailable
+    vocab <- if (nrow(table) > 0L) import_eea_pollutants() else NULL
+
     # format data for returning
-    out <- format_monitoring(table, meta)
+    out <- format_monitoring(table, meta, vocab)
 
     # return data
     return(out)
@@ -216,8 +208,52 @@ import_eea_monitoring_urls <- function(
     aggregation_type = aggregation_type
   )
 
-  # read all parquet files w/ arrow
-  read_parquets(urls)
+  # read all parquet files w/ arrow, which contain complete time series
+  table <- read_parquets(urls)
+
+  # so filter to the requested dates & aggregation type
+  filter_parquet_table(table, datetime_start, datetime_end, aggregation_type)
+}
+
+#' Filter a parquet table to a date range and aggregation type
+#'
+#' This mirrors how the API filters the 'ParquetFile' endpoints, which is to
+#' compare the requested datetimes (formatted by `format_date_for_api()`)
+#' against the naive clock times in the files, as if both were UTC. A row is
+#' kept if its period overlaps the requested period, i.e., it ends after the
+#' requested start and starts before the requested end.
+#'
+#' @noRd
+filter_parquet_table <- function(
+  table,
+  datetime_start,
+  datetime_end,
+  aggregation_type
+) {
+  api_time <- function(x) {
+    as.POSIXct(x, format = "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
+  }
+
+  # arrow reads the naive clock times as if they were UTC
+  start <- as.numeric(table$Start)
+  end <- as.numeric(table$End)
+  keep <- rep(TRUE, nrow(table))
+
+  if (!is.null(datetime_start)) {
+    from <- api_time(format_date_for_api(datetime_start, type = "start"))
+    keep <- keep & end > as.numeric(from)
+  }
+
+  if (!is.null(datetime_end)) {
+    to <- api_time(format_date_for_api(datetime_end, type = "end"))
+    keep <- keep & start < as.numeric(to)
+  }
+
+  if (!is.null(aggregation_type)) {
+    keep <- keep & table$AggType %in% aggregation_type
+  }
+
+  table[keep, ]
 }
 
 #' Read and bind parquet files, returning a consistent empty table if there
@@ -270,8 +306,16 @@ empty_station_meta <- function() {
   )
 }
 
+#' Format raw parquet data for returning from import_eea_monitoring()
+#'
+#' @param table The parquet data, from `read_parquets()`.
+#' @param meta The station metadata, from `import_eea_stations()`, which may be
+#'   empty or incomplete.
+#' @param vocab The pollutant vocabulary, from `import_eea_pollutants()`, used
+#'   to name each pollutant code. If `NULL`, names are taken from `meta`.
+#'
 #' @noRd
-format_monitoring <- function(table, meta) {
+format_monitoring <- function(table, meta, vocab = NULL) {
   # make sure the station metadata has all of the columns needed below, even if
   # it is empty or the metadata format has changed
   template <- empty_station_meta()
@@ -291,20 +335,36 @@ format_monitoring <- function(table, meta) {
 
   names(table) <- snakecase::to_snake_case(names(table))
 
+  # name each pollutant code using the pollutant vocabulary
+  if (!is.null(vocab)) {
+    vocab <- dplyr::select(
+      vocab,
+      "pollutant" = "pollutant_id",
+      "pollutant_name" = "pollutant"
+    )
+    vocab <- dplyr::distinct(vocab, .data$pollutant, .keep_all = TRUE)
+    table <- dplyr::left_join(table, vocab, dplyr::join_by("pollutant"))
+  } else {
+    table$pollutant_name <- rep(NA_character_, nrow(table))
+  }
+
   out <-
     table |>
     dplyr::left_join(
       dplyr::distinct(meta, .data$sampling_point_id, .keep_all = TRUE),
       dplyr::join_by("sampling_point_id")
     ) |>
-    dplyr::mutate(value = dplyr::na_if(.data$value, -999)) |>
+    dplyr::mutate(
+      value = dplyr::na_if(.data$value, -999),
+      variable = dplyr::coalesce(.data$pollutant_name, .data$air_pollutant)
+    ) |>
     dplyr::select(
       "country",
       "network" = "air_quality_network",
       "site" = "air_quality_station_name",
       "code" = "sampling_point_id",
       "aggregation" = "agg_type",
-      "variable" = "air_pollutant",
+      "variable",
       "date" = "start",
       "date_end" = "end",
       "timezone",

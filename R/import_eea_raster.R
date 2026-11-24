@@ -73,14 +73,23 @@ import_eea_raster <- function(
 
     raster <- terra::rast(tiffs)
 
-    # the files have no time metadata, but are named like
-    # "NO2_2024010100.tiff", where the hour is in UTC
-    stamps <- sub("^.*_([0-9]{10})\\.tiff?$", "\\1", basename(tiffs))
-    times <- as.POSIXct(stamps, format = "%Y%m%d%H", tz = "UTC")
+    times <- raster_layer_times(tiffs)
     if (!anyNA(times)) {
       terra::time(raster) <- times
     }
 
     return(raster)
   }
+}
+
+#' Get the time of each raster from its file name
+#'
+#' The files have no time metadata, but are named like "NO2_2024010100.tiff",
+#' where the hour is in UTC. Returns `NA` for any other file names.
+#'
+#' @noRd
+raster_layer_times <- function(paths) {
+  stamps <- sub("^.*_([0-9]{10})\\.tiff?$", "\\1", basename(paths))
+  stamps[!grepl("^[0-9]{10}$", stamps)] <- NA_character_
+  as.POSIXct(stamps, format = "%Y%m%d%H", tz = "UTC")
 }

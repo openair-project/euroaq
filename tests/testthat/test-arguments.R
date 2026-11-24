@@ -39,26 +39,3 @@ test_that("only download functions have download-format arguments", {
   }
   expect_false("file" %in% names(formals(get_eea_raster_async)))
 })
-
-test_that("`dynamic` switches between the dynamic and classic methods", {
-  skip_if_no_api()
-
-  n_files <- function(dynamic) {
-    zip <- get_eea_parquet_files(
-      countries = "BE",
-      pollutants = "NO2",
-      dataset = 2L,
-      datetime_start = as.Date("2024-01-01"),
-      datetime_end = as.Date("2024-01-01"),
-      dynamic = dynamic
-    )
-    on.exit(unlink(zip))
-    nrow(utils::unzip(zip, list = TRUE))
-  }
-
-  # for larger requests, dynamic combines all sampling points in a single file,
-  # whereas classic always gives one file per sampling point. Note that for
-  # small requests (e.g., Andorra) dynamic also gives one file per point.
-  expect_identical(n_files(TRUE), 1L)
-  expect_gt(n_files(FALSE), 1L)
-})

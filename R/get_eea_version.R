@@ -9,11 +9,7 @@ get_eea_version <- function() {
   # perform request
   resp <-
     httr2::request(construct_url("Version")) |>
-    httr2::req_error(is_error = \(resp) FALSE) |>
-    httr2::req_perform()
-
-  # error if appropriate
-  report_error(resp)
+    perform_request()
 
   # return
   httr2::resp_body_string(resp)

@@ -26,19 +26,25 @@
 
 * `get_eea_raster_files()`, `get_eea_raster_async()` and `import_eea_raster()` now error if `pollutants` is empty or contains unrecognised pollutants. Previously, unrecognised pollutants were silently dropped.
 
+* `import_eea_monitoring(.endpoint = "urls")` now filters the downloaded data to the requested `datetime_start`, `datetime_end` and `aggregation_type`, so returns the same data as `.endpoint = "files"`. Previously, it returned the complete time series of every sampling point, with a warning.
+
 ## New Features
 
 * `import_eea_cities()` gains the `modelled` argument. When `modelled = TRUE`, it returns the cities for which CAMS forecast rasters are available (currently each country's capital), for use with `import_eea_raster()` and the `get_eea_raster_*()` family.
 
 * `import_eea_raster()` now sets the time of each layer (in UTC), which can be accessed using `terra::time()`. Previously, the time was only available in the layer names.
 
+* All requests to the EEA now retry up to three times if the service is temporarily unavailable (e.g., a 502 Bad Gateway or 504 Gateway Timeout error) or the connection fails.
+
 ## Documentation
 
 * The documentation of `get_eea_country_city_spos()` now makes clear that it only filters by `countries`, `cities` and `dataset`, ignoring all other arguments, and that its EEA-defined cities may extend beyond their administrative boundaries.
 
-* The documentation of `get_eea_parquet_urls()`, `get_eea_summary()` and `import_eea_monitoring(.endpoint = "urls")` now makes clear that `datetime_start`, `datetime_end` and `aggregation_type` are ignored, as these return complete time series.
+* The documentation of `get_eea_parquet_urls()` and `get_eea_summary()` now makes clear that `datetime_start`, `datetime_end` and `aggregation_type` are ignored, as these consider complete time series.
 
 * The descriptions of each `dataset` have been updated to match the EEA's documentation, and the `dynamic` and `compress` arguments are now more clearly documented.
+
+* The package vignette has been updated, including new sections on the datetime arguments and timezones, the 600MB download limit, modelled cities, and checking for the output of `get_eea_parquet_async()`.
 
 ## Bug Fixes
 
@@ -62,7 +68,7 @@
 
 * `dynamic = TRUE` in `get_eea_parquet_files()` and `get_eea_parquet_async()` now explicitly requests the 'dynamic' method. Previously, the API was left to choose the method itself.
 
-* `import_eea_monitoring()` no longer always warns that dates may fall outside of the requested range when `.endpoint = "urls"`; the warning is now only given if `datetime_start` or `datetime_end` are provided.
+* `import_eea_monitoring()` now names each pollutant in the `variable` column using `import_eea_pollutants()`, rather than the station metadata. This means `variable` is no longer missing when the station metadata is unavailable.
 
 * `import_eea_monitoring()` no longer drops sampling points outside of cities when `cities = NULL`. Previously, all of the cities in the given `countries` were passed to the API, which excluded any sampling point not within a city (e.g., roughly half of the sampling points in France). An empty list of cities is now passed, which the API treats as "all".
 
