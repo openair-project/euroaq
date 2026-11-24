@@ -34,8 +34,9 @@ get_eea_raster_async(
 city is available). If \code{NULL}, data for the entire \code{country} will be
 imported.}
 
-\item{pollutants}{A vector of pollutant IDs from \code{\link[=import_eea_pollutants]{import_eea_pollutants()}}
-(e.g., \code{"pm10"}).}
+\item{pollutants}{A vector of pollutant notations from
+\code{\link[=import_eea_pollutants]{import_eea_pollutants()}}, ignoring case. Forecast rasters are available
+for \code{"NO2"}, \code{"O3"}, \code{"PM10"} and \code{"PM2.5"}.}
 
 \item{datetime_start, datetime_end}{Start and end date times, provided as
 \code{POSIXct}, \code{Date} or \code{integer} R objects.
@@ -46,12 +47,16 @@ day, meaning providing the same \code{Date} to each will return a day of data.
 \item An \code{integer} represents a whole year; \code{datetime_end} includes all of the
 given year, meaning providing the same integer to each will return a year
 of data.
-}}
+}
+
+The forecast rasters are in UTC, so \code{Date} and \code{integer} inputs define
+days and years in UTC.}
 
 \item{email}{Optional field to identify the user who make the download and
 improve the communication if problems are detected.}
 
-\item{output_format}{One of \code{"zip"} or \code{"tiff"}.}
+\item{output_format}{One of \code{"zip"} or \code{"tiff"}. Note that, at the time of
+writing, the API appears to return a zip file regardless of this value.}
 
 \item{file}{The file to write the downloaded file to; should ideally end in
 \code{".zip"} or \code{".tiff"}, matching \code{output_format}. Defaults to a temporary
@@ -68,8 +73,9 @@ One of:
 These functions are wrappers for the 'Raster' endpoints of the European
 Environment Agency's Air Quality Download Service API.
 \itemize{
-\item \code{\link[=get_eea_raster_files]{get_eea_raster_files()}} downloads a zip file with all the filtered parquet
-files in it.
+\item \code{\link[=get_eea_raster_files]{get_eea_raster_files()}} downloads a zip file containing a GeoTIFF file
+for each hour and pollutant, named like \code{"NO2_2024010100.tiff"}. The hour in
+each file name is in UTC.
 \item \code{\link[=get_eea_raster_async]{get_eea_raster_async()}} prepares this in the background; the
 function returns an URL in which the file to be downloaded will be generated.
 }

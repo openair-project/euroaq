@@ -11,12 +11,13 @@ construct_url <- function(x) {
 #' Format date as a string for the API
 #'
 #' The API compares the requested datetimes against the 'naive' clock times in
-#' the parquet files as if both were UTC. However, hourly and variable data are
-#' reported in UTC+1, and daily data in the reporting country's local time.
-#' Therefore:
+#' the data as if both were UTC. However, in the parquet files, hourly and
+#' variable data are reported in UTC+1, and daily data in the reporting
+#' country's local time. The CAMS rasters are in UTC. Therefore:
 #'
-#' - `POSIXct` inputs represent an exact instant, so are expressed as a UTC+1
-#' clock time (matching hourly data).
+#' - `POSIXct` inputs represent an exact instant, so are expressed as a clock
+#' time in `tz` - UTC+1 for parquet files (matching hourly data) and UTC for
+#' rasters.
 #'
 #' - `Date` and integer year inputs represent calendar periods, so are sent as
 #' clock times without any conversion. `type = "end"` extends to the end of
@@ -26,6 +27,7 @@ construct_url <- function(x) {
 format_date_for_api <- function(
   x,
   type = c("start", "end"),
+  tz = "Etc/GMT-1",
   arg = rlang::caller_arg(x)
 ) {
   type <- rlang::arg_match(type, c("start", "end"))
@@ -38,7 +40,7 @@ format_date_for_api <- function(
   }
 
   if (inherits(x, "POSIXt")) {
-    x <- lubridate::with_tz(as.POSIXct(x), tzone = "Etc/GMT-1")
+    x <- lubridate::with_tz(as.POSIXct(x), tzone = tz)
   } else if (inherits(x, "Date")) {
     if (type == "end") {
       x <- x + 1L

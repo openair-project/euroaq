@@ -6,7 +6,7 @@
 
   * `import_eea_monitoring()` now assigns the correct timezone to `date` and `date_end`. The EEA reports hourly and variable data in UTC+01 and daily data in the local time of each station, but previously the station's timezone was applied to all data, with the sign of the offset inverted (e.g., "UTC+01" was treated as UTC-01). The result also depended on the timezone of the user's R session. Where a single result contains several timezones, `date` and `date_end` are now displayed in UTC, and the `timezone` column records the timezone of the original data.
 
-  * `POSIXct` values for `datetime_start` and `datetime_end` now refer to the correct instant in time. Previously, their clock time was sent to the API as if it were UTC.
+  * `POSIXct` values for `datetime_start` and `datetime_end` now refer to the correct instant in time. Previously, their clock time was sent to the API as if it were UTC. Note that monitoring data are reported in UTC+01, whereas the CAMS forecast rasters are in UTC, and each is now handled accordingly.
 
   * `Date` values for `datetime_end` now include the whole of the given day, consistent with integer years. Previously, data for the final day was excluded.
 
@@ -29,6 +29,8 @@
 ## New Features
 
 * `import_eea_cities()` gains the `modelled` argument. When `modelled = TRUE`, it returns the cities for which CAMS forecast rasters are available (currently each country's capital), for use with `import_eea_raster()` and the `get_eea_raster_*()` family.
+
+* `import_eea_raster()` now sets the time of each layer (in UTC), which can be accessed using `terra::time()`. Previously, the time was only available in the layer names.
 
 ## Documentation
 

@@ -1,12 +1,14 @@
 #' Conveniently import European Air Quality CAMS data into R
 #'
 #' This function is a convenient way to use EEA AQ modelling data in an R
-#' session. It calls [get_eea_raster_files()] to download the .tiff files into a
+#' session. It calls [get_eea_raster_files()] to download the `.tiff` files into a
 #' temporary directory and reads them into the R session using [terra::rast()].
 #'
-#' @returns a [terra::SpatRaster][terra::SpatRaster-class]. Note that this
-#'   object points to `.tiff` files extracted into a temporary directory, which
-#'   are only available for the duration of the R session; use
+#' @returns a [terra::SpatRaster][terra::SpatRaster-class], with one layer per
+#'   hour and pollutant. Layers are named like `"NO2_2024010100"`, and their
+#'   times (in UTC) can be accessed using [terra::time()]. Note that this object
+#'   points to `.tiff` files extracted into a temporary directory, which are
+#'   only available for the duration of the R session; use
 #'   [terra::writeRaster()] to save the data elsewhere.
 #'
 #' @inheritParams get_eea_raster_files
@@ -69,6 +71,16 @@ import_eea_raster <- function(
       )
     }
 
-    return(terra::rast(tiffs))
+    raster <- terra::rast(tiffs)
+
+    # the files have no time metadata, but are named like
+    # "NO2_2024010100.tiff", where the hour is in UTC
+    stamps <- sub("^.*_([0-9]{10})\\.tiff?$", "\\1", basename(tiffs))
+    times <- as.POSIXct(stamps, format = "%Y%m%d%H", tz = "UTC")
+    if (!anyNA(times)) {
+      terra::time(raster) <- times
+    }
+
+    return(raster)
   }
 }

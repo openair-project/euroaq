@@ -2,8 +2,9 @@
 #'
 #' These functions are wrappers for the 'Raster' endpoints of the European
 #' Environment Agency's Air Quality Download Service API.
-#' - [get_eea_raster_files()] downloads a zip file with all the filtered parquet
-#' files in it.
+#' - [get_eea_raster_files()] downloads a zip file containing a GeoTIFF file
+#' for each hour and pollutant, named like `"NO2_2024010100.tiff"`. The hour in
+#' each file name is in UTC.
 #' - [get_eea_raster_async()] prepares this in the background; the
 #' function returns an URL in which the file to be downloaded will be generated.
 #'
@@ -14,8 +15,9 @@
 #'   city is available). If `NULL`, data for the entire `country` will be
 #'   imported.
 #'
-#' @param pollutants A vector of pollutant IDs from [import_eea_pollutants()]
-#'   (e.g., `"pm10"`).
+#' @param pollutants A vector of pollutant notations from
+#'   [import_eea_pollutants()], ignoring case. Forecast rasters are available
+#'   for `"NO2"`, `"O3"`, `"PM10"` and `"PM2.5"`.
 #'
 #' @param datetime_start,datetime_end Start and end date times, provided as
 #'   `POSIXct`, `Date` or `integer` R objects.
@@ -29,6 +31,9 @@
 #'   given year, meaning providing the same integer to each will return a year
 #'   of data.
 #'
+#'   The forecast rasters are in UTC, so `Date` and `integer` inputs define
+#'   days and years in UTC.
+#'
 #' @param file The file to write the downloaded file to; should ideally end in
 #'   `".zip"` or `".tiff"`, matching `output_format`. Defaults to a temporary
 #'   file using [tempfile()]. Only used in [get_eea_raster_files()].
@@ -36,7 +41,8 @@
 #' @param email Optional field to identify the user who make the download and
 #'   improve the communication if problems are detected.
 #'
-#' @param output_format One of `"zip"` or `"tiff"`.
+#' @param output_format One of `"zip"` or `"tiff"`. Note that, at the time of
+#'   writing, the API appears to return a zip file regardless of this value.
 #'
 #' @returns One of:
 #'
@@ -153,8 +159,9 @@ raster_api_response <- function(
     country = country,
     city = city,
     pollutants = as.list(pollutants),
-    dateTimeStart = format_date_for_api(datetime_start, type = "start"),
-    dateTimeEnd = format_date_for_api(datetime_end, type = "end"),
+    # unlike the parquet files, the CAMS rasters are in UTC
+    dateTimeStart = format_date_for_api(datetime_start, "start", tz = "UTC"),
+    dateTimeEnd = format_date_for_api(datetime_end, "end", tz = "UTC"),
     email = email,
     outputFormat = output_format
   )

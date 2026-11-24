@@ -45,6 +45,19 @@ test_that("format_date_for_api() sends POSIXct as UTC+1 clock times", {
   )
 })
 
+test_that("format_date_for_api() can send POSIXct as UTC clock times", {
+  x <- as.POSIXct("2024-06-01 12:00", tz = "Europe/Berlin")
+  expect_identical(
+    format_date_for_api(x, "start", tz = "UTC"),
+    "2024-06-01T10:00:00Z"
+  )
+  # dates and years are unaffected
+  expect_identical(
+    format_date_for_api(as.Date("2024-06-01"), "start", tz = "UTC"),
+    "2024-06-01T00:00:00Z"
+  )
+})
+
 test_that("format_date_for_api() errors for unsupported inputs", {
   start <- "2024-01-01"
   expect_error(format_date_for_api(start), "start")

@@ -22,8 +22,9 @@ import_eea_raster(
 city is available). If \code{NULL}, data for the entire \code{country} will be
 imported.}
 
-\item{pollutants}{A vector of pollutant IDs from \code{\link[=import_eea_pollutants]{import_eea_pollutants()}}
-(e.g., \code{"pm10"}).}
+\item{pollutants}{A vector of pollutant notations from
+\code{\link[=import_eea_pollutants]{import_eea_pollutants()}}, ignoring case. Forecast rasters are available
+for \code{"NO2"}, \code{"O3"}, \code{"PM10"} and \code{"PM2.5"}.}
 
 \item{datetime_start, datetime_end}{Start and end date times, provided as
 \code{POSIXct}, \code{Date} or \code{integer} R objects.
@@ -34,7 +35,10 @@ day, meaning providing the same \code{Date} to each will return a day of data.
 \item An \code{integer} represents a whole year; \code{datetime_end} includes all of the
 given year, meaning providing the same integer to each will return a year
 of data.
-}}
+}
+
+The forecast rasters are in UTC, so \code{Date} and \code{integer} inputs define
+days and years in UTC.}
 
 \item{...}{These dots are for future extensions and must be empty.}
 
@@ -42,14 +46,16 @@ of data.
 Currently only \code{"files"} is supported, which uses \code{\link[=get_eea_raster_files]{get_eea_raster_files()}}.}
 }
 \value{
-a \link[terra:SpatRaster-class]{terra::SpatRaster}. Note that this
-object points to \code{.tiff} files extracted into a temporary directory, which
-are only available for the duration of the R session; use
+a \link[terra:SpatRaster-class]{terra::SpatRaster}, with one layer per
+hour and pollutant. Layers are named like \code{"NO2_2024010100"}, and their
+times (in UTC) can be accessed using \code{\link[terra:time]{terra::time()}}. Note that this object
+points to \code{.tiff} files extracted into a temporary directory, which are
+only available for the duration of the R session; use
 \code{\link[terra:writeRaster]{terra::writeRaster()}} to save the data elsewhere.
 }
 \description{
 This function is a convenient way to use EEA AQ modelling data in an R
-session. It calls \code{\link[=get_eea_raster_files]{get_eea_raster_files()}} to download the .tiff files into a
+session. It calls \code{\link[=get_eea_raster_files]{get_eea_raster_files()}} to download the \code{.tiff} files into a
 temporary directory and reads them into the R session using \code{\link[terra:rast]{terra::rast()}}.
 }
 \author{
