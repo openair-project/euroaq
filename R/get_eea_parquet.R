@@ -10,8 +10,18 @@
 #' parquets.
 #' - [get_eea_summary()] estimates the number of files and their size,
 #' but does not return any data.
-#' - [get_eea_country_city_spos()] returns a list of
-#' sampling points meeting the criteria.
+#' - [get_eea_country_city_spos()] returns the sampling points in the given
+#' `countries` and `cities` for the given `dataset`. Note that it does
+#' **not** filter by `pollutants`, `aggregation_type`, `datetime_start` or
+#' `datetime_end`, and `email` and `compress` have no effect; these arguments
+#' are only provided for consistency with the other functions. To find the
+#' sampling points with data for specific pollutants, use
+#' [get_eea_parquet_urls()], which returns one file per sampling point.
+#'
+#' Note that cities are defined by the EEA using the 'Urban Audit' city
+#' boundaries, which may extend beyond the city's administrative area. For
+#' example, `"Madrid"` includes sampling points in several neighbouring
+#' municipalities.
 #'
 #' @param countries A vector of country codes from [import_eea_countries()]. If
 #'   `NULL`, data from all countries will be imported.
@@ -90,7 +100,9 @@
 #'
 #' - [get_eea_summary()]: a numeric list, with names `numberFiles` and `size`.
 #'
-#' - [get_eea_country_city_spos()]: a `data.frame` of local IDs.
+#' - [get_eea_country_city_spos()]: a [tibble][tibble::tibble-package] with a
+#' single column, `localid`, containing the local ID of each sampling point
+#' (without the country code prefix used in the parquet files).
 #'
 #' @author Jack Davison
 #'

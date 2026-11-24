@@ -30,8 +30,10 @@ get_eea_raster_async(
 \arguments{
 \item{country}{A single country code from \code{\link[=import_eea_countries]{import_eea_countries()}}.}
 
-\item{city}{A single city in the given \code{country} from \code{\link[=import_eea_cities]{import_eea_cities()}}.
-If \code{NULL}, data from all cities in the given \code{country} will be imported.}
+\item{city}{A single city in the given \code{country} from
+\code{import_eea_cities(modelled = TRUE)} (currently, only the country's capital
+city is available). If \code{NULL}, data for the entire \code{country} will be
+imported.}
 
 \item{pollutants}{A vector of pollutant IDs from \code{\link[=import_eea_pollutants]{import_eea_pollutants()}}
 (e.g., \code{"pm10"}).}

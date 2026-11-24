@@ -12,6 +12,14 @@
 
   * `datetime_start` and `datetime_end` now error if given anything other than a single `POSIXct`, `Date` or whole number. Previously, other inputs (e.g., a character string) silently removed the temporal filter.
 
+## New Features
+
+* `import_eea_cities()` gains the `modelled` argument. When `modelled = TRUE`, it returns the cities for which CAMS forecast rasters are available (currently each country's capital), for use with `import_eea_raster()` and the `get_eea_raster_*()` family.
+
+## Documentation
+
+* The documentation of `get_eea_country_city_spos()` now makes clear that it only filters by `countries`, `cities` and `dataset`, ignoring all other arguments, and that its EEA-defined cities may extend beyond their administrative boundaries.
+
 ## Bug Fixes
 
 * `import_eea_monitoring()` no longer always warns that dates may fall outside of the requested range when `.endpoint = "urls"`; the warning is now only given if `datetime_start` or `datetime_end` are provided.

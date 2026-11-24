@@ -6,7 +6,7 @@
 \alias{import_eea_pollutants}
 \title{Import metadata files from the EEA Air Quality Download Service}
 \usage{
-import_eea_cities(countries)
+import_eea_cities(countries, modelled = FALSE)
 
 import_eea_countries()
 
@@ -15,9 +15,16 @@ import_eea_pollutants()
 \arguments{
 \item{countries}{A vector of country codes from \code{\link[=import_eea_countries]{import_eea_countries()}}. Only
 used in \code{\link[=import_eea_cities]{import_eea_cities()}}.}
+
+\item{modelled}{If \code{FALSE}, the default, \code{\link[=import_eea_cities]{import_eea_cities()}} returns the
+cities which can be used to filter monitoring data (e.g., in
+\code{\link[=import_eea_monitoring]{import_eea_monitoring()}}). If \code{TRUE}, it instead returns the cities for
+which modelled CAMS forecast rasters are available (e.g., in
+\code{\link[=import_eea_raster]{import_eea_raster()}}), which is currently each country's capital city.}
 }
 \value{
-a \link[tibble:tibble-package]{tibble}
+a \link[tibble:tibble-package]{tibble}. For \code{\link[=import_eea_cities]{import_eea_cities()}}, this
+has the columns \code{country_code} and \code{city_name}.
 }
 \description{
 This collection of functions import information on available countries,

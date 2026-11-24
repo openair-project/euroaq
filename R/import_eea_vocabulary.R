@@ -6,17 +6,65 @@
 #' @param countries A vector of country codes from [import_eea_countries()]. Only
 #'   used in [import_eea_cities()].
 #'
-#' @return a [tibble][tibble::tibble-package]
+#' @param modelled If `FALSE`, the default, [import_eea_cities()] returns the
+#'   cities which can be used to filter monitoring data (e.g., in
+#'   [import_eea_monitoring()]). If `TRUE`, it instead returns the cities for
+#'   which modelled CAMS forecast rasters are available (e.g., in
+#'   [import_eea_raster()]), which is currently each country's capital city.
+#'
+#' @return a [tibble][tibble::tibble-package]. For [import_eea_cities()], this
+#'   has the columns `country_code` and `city_name`.
 #'
 #' @rdname eea-metadata
 #'
 #' @author Jack Davison
 #'
 #' @export
-import_eea_cities <- function(countries) {
+import_eea_cities <- function(countries, modelled = FALSE) {
+  if (!rlang::is_bool(modelled)) {
+    cli::cli_abort("{.arg modelled} must be {.code TRUE} or {.code FALSE}.")
+  }
+
+  empty <- dplyr::tibble(country_code = character(), city_name = character())
+
+  if (modelled) {
+    # the 'Modelled' endpoint returns city names without their country, so
+    # each country is requested separately
+    table <-
+      purrr::map(
+        countries,
+        \(x) {
+          cities <- unlist(request_cities("City/Modelled", x))
+          dplyr::tibble(
+            country_code = rep(x, length(cities)),
+            city_name = as.character(cities)
+          )
+        }
+      ) |>
+      dplyr::bind_rows(empty)
+
+    return(table)
+  }
+
+  # create return table
+  table <-
+    request_cities("City", countries, simplifyVector = TRUE) |>
+    dplyr::tibble() |>
+    dplyr::rename_with(snakecase::to_snake_case)
+
+  if (nrow(table) == 0) {
+    return(empty)
+  } else {
+    return(table)
+  }
+}
+
+#' Helper to request one of the 'City' endpoints
+#' @noRd
+request_cities <- function(endpoint, countries, ...) {
   # send request
   resp <-
-    httr2::request(base_url = construct_url("City")) |>
+    httr2::request(base_url = construct_url(endpoint)) |>
     httr2::req_method("POST") |>
     httr2::req_headers(
       "accept" = "text/plain",
@@ -29,16 +77,7 @@ import_eea_cities <- function(countries) {
   # error if appropriate
   report_error(resp)
 
-  # create return table
-  table <- httr2::resp_body_json(resp, simplifyVector = TRUE) |>
-    dplyr::tibble() |>
-    dplyr::rename_with(snakecase::to_snake_case)
-
-  if (nrow(table) == 0) {
-    return(dplyr::tibble(country_code = character(), city_name = character()))
-  } else {
-    return(table)
-  }
+  httr2::resp_body_json(resp, ...)
 }
 
 #' @rdname eea-metadata

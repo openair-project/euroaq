@@ -9,8 +9,10 @@
 #'
 #' @param country A single country code from [import_eea_countries()].
 #'
-#' @param city A single city in the given `country` from [import_eea_cities()].
-#'   If `NULL`, data from all cities in the given `country` will be imported.
+#' @param city A single city in the given `country` from
+#'   `import_eea_cities(modelled = TRUE)` (currently, only the country's capital
+#'   city is available). If `NULL`, data for the entire `country` will be
+#'   imported.
 #'
 #' @param pollutants A vector of pollutant IDs from [import_eea_pollutants()]
 #'   (e.g., `"pm10"`).

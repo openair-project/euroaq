@@ -141,7 +141,9 @@ One of:
 \item \code{\link[=get_eea_parquet_async]{get_eea_parquet_async()}}: a path to the URL at which the ZIP file will be made available.
 \item \code{\link[=get_eea_parquet_urls]{get_eea_parquet_urls()}}: a character vector of URLS to each parquet file.
 \item \code{\link[=get_eea_summary]{get_eea_summary()}}: a numeric list, with names \code{numberFiles} and \code{size}.
-\item \code{\link[=get_eea_country_city_spos]{get_eea_country_city_spos()}}: a \code{data.frame} of local IDs.
+\item \code{\link[=get_eea_country_city_spos]{get_eea_country_city_spos()}}: a \link[tibble:tibble-package]{tibble} with a
+single column, \code{localid}, containing the local ID of each sampling point
+(without the country code prefix used in the parquet files).
 }
 }
 \description{
@@ -156,9 +158,20 @@ function returns an URL in which the file to be downloaded will be generated.
 parquets.
 \item \code{\link[=get_eea_summary]{get_eea_summary()}} estimates the number of files and their size,
 but does not return any data.
-\item \code{\link[=get_eea_country_city_spos]{get_eea_country_city_spos()}} returns a list of
-sampling points meeting the criteria.
+\item \code{\link[=get_eea_country_city_spos]{get_eea_country_city_spos()}} returns the sampling points in the given
+\code{countries} and \code{cities} for the given \code{dataset}. Note that it does
+\strong{not} filter by \code{pollutants}, \code{aggregation_type}, \code{datetime_start} or
+\code{datetime_end}, and \code{email} and \code{compress} have no effect; these arguments
+are only provided for consistency with the other functions. To find the
+sampling points with data for specific pollutants, use
+\code{\link[=get_eea_parquet_urls]{get_eea_parquet_urls()}}, which returns one file per sampling point.
 }
+}
+\details{
+Note that cities are defined by the EEA using the 'Urban Audit' city
+boundaries, which may extend beyond the city's administrative area. For
+example, \code{"Madrid"} includes sampling points in several neighbouring
+municipalities.
 }
 \author{
 Jack Davison
