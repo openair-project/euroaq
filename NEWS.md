@@ -1,3 +1,13 @@
+# euroaq (development version)
+
+## Bug Fixes
+
+* `import_eea_monitoring()` no longer drops sampling points outside of cities when `cities = NULL`. Previously, all of the cities in the given `countries` were passed to the API, which excluded any sampling point not within a city (e.g., roughly half of the sampling points in France). An empty list of cities is now passed, which the API treats as "all".
+
+* `import_eea_monitoring()` and `import_eea_stations()` now delete the files they download and extract once they have been read, rather than leaving them in the session's temporary directory. `import_eea_raster()` deletes its downloaded zip file, but keeps the extracted rasters as these are read lazily by `{terra}`.
+
+* `import_eea_raster()` now also finds rasters with a `.tif` file extension, and its documentation now correctly states that it returns a `terra::SpatRaster` rather than a tibble.
+
 # euroaq 0.2.0
 
 ## Breaking Changes
@@ -8,7 +18,7 @@
 
 ## New Features
 
-* Added `import_eea_raster()`, `get_eea_raster_files()` and `get_eea_raster_urls()` to access the CAMS rasters.
+* Added `import_eea_raster()`, `get_eea_raster_files()` and `get_eea_raster_async()` to access the CAMS rasters.
 
 * Added the `compress` argument to the `get_eea_parquet_files()` family.
 

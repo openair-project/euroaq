@@ -8,9 +8,7 @@
 get_eea_version <- function() {
   # perform request
   resp <-
-    httr2::request(
-      "https://eeadmz1-downloads-api-appservice.azurewebsites.net/Version"
-    ) |>
+    httr2::request(construct_url("Version")) |>
     httr2::req_error(is_error = \(resp) FALSE) |>
     httr2::req_perform()
 

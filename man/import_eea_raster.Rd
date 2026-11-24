@@ -36,7 +36,10 @@ each will return a year of data.}
 Currently only \code{"files"} is supported, which uses \code{\link[=get_eea_raster_files]{get_eea_raster_files()}}.}
 }
 \value{
-a \link[tibble:tibble-package]{tibble}
+a \link[terra:SpatRaster-class]{terra::SpatRaster}. Note that this
+object points to \code{.tiff} files extracted into a temporary directory, which
+are only available for the duration of the R session; use
+\code{\link[terra:writeRaster]{terra::writeRaster()}} to save the data elsewhere.
 }
 \description{
 This function is a convenient way to use EEA AQ modelling data in an R

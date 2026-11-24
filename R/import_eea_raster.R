@@ -4,7 +4,10 @@
 #' session. It calls [get_eea_raster_files()] to download the .tiff files into a
 #' temporary directory and reads them into the R session using [terra::rast()].
 #'
-#' @returns a [tibble][tibble::tibble-package]
+#' @returns a [terra::SpatRaster][terra::SpatRaster-class]. Note that this
+#'   object points to `.tiff` files extracted into a temporary directory, which
+#'   are only available for the duration of the R session; use
+#'   [terra::writeRaster()] to save the data elsewhere.
 #'
 #' @inheritParams get_eea_raster_files
 #'
@@ -28,33 +31,29 @@ import_eea_raster <- function(
   rlang::check_installed("terra")
   .endpoint <- rlang::arg_match(.endpoint, multiple = FALSE)
 
-  # get unique dir to extract to
-  tf <- as.numeric(Sys.time())
-  tdr <- tempdir()
-  exdir <- file.path(tdr, tf)
-  dir.create(path = exdir)
-
-  zip_path <- file.path(exdir, "raster.zip")
-  dir_path <- file.path(exdir, "raster")
+  # get unique paths to download & extract to; the zip can be removed once
+  # extracted, but the tiffs must persist as terra reads them lazily from disk
+  zip_path <- tempfile("euroaq_raster_", fileext = ".zip")
+  dir_path <- tempfile("euroaq_raster_")
+  on.exit(unlink(zip_path, force = TRUE), add = TRUE)
 
   if (.endpoint == "files") {
-    raster_path <-
-      get_eea_raster_files(
-        country = country,
-        city = city,
-        pollutants = pollutants,
-        datetime_start = datetime_start,
-        datetime_end = datetime_end,
-        email = NULL,
-        output_format = "zip",
-        file = zip_path
-      )
+    get_eea_raster_files(
+      country = country,
+      city = city,
+      pollutants = pollutants,
+      datetime_start = datetime_start,
+      datetime_end = datetime_end,
+      email = NULL,
+      output_format = "zip",
+      file = zip_path
+    )
 
     utils::unzip(zipfile = zip_path, exdir = dir_path)
 
     return(
       terra::rast(
-        list.files(dir_path, full.names = TRUE, pattern = ".tiff")
+        list.files(dir_path, full.names = TRUE, pattern = "\\.tiff?$")
       )
     )
   }

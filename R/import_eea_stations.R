@@ -30,19 +30,12 @@ import_eea_stations <- function(
     purrr::map(
       .x = countries,
       .f = \(x) {
-        td <- tempdir()
-        zip_filename <- paste0("euroaq_dataflowd_", x, ".zip")
-        dir_filename <- paste0("euroaq_dataflowd_", x)
-
-        zip_path <- file.path(td, zip_filename)
-        dir_path <- file.path(td, dir_filename)
-
-        if (file.exists(zip_path)) {
-          unlink(zip_path, recursive = TRUE, force = TRUE)
-        }
-        if (dir.exists(dir_path)) {
-          unlink(dir_path, recursive = TRUE, force = TRUE)
-        }
+        zip_path <- tempfile("euroaq_dataflowd_", fileext = ".zip")
+        dir_path <- tempfile("euroaq_dataflowd_")
+        on.exit(
+          unlink(c(zip_path, dir_path), recursive = TRUE, force = TRUE),
+          add = TRUE
+        )
 
         httr2::request(
           "https://discomap.eea.europa.eu/App/AQViewer/download?fqn=Airquality_Dissem.b2g.measurements&f=csv"
@@ -68,9 +61,11 @@ import_eea_stations <- function(
           vroom::vroom(
             list.files(
               dir_path,
-              pattern = "DataExtract.csv",
+              pattern = "DataExtract\\.csv$",
               full.names = TRUE
             ),
+            # read eagerly, as the file is deleted on exit
+            altrep = FALSE,
             show_col_types = FALSE,
             progress = FALSE,
             .name_repair = snakecase::to_snake_case

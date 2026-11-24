@@ -63,7 +63,7 @@ get_eea_raster_files <- function(
       endpoint = "Raster"
     )
 
-  # Download and unzip
+  # write response to disk
   downloaded_file <- httr2::resp_body_raw(resp)
   writeBin(downloaded_file, con = file)
 

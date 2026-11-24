@@ -103,7 +103,7 @@ get_eea_parquet_files <-
     file = tempfile(fileext = ".zip")
   ) {
     resp <- parquet_api_response(
-      endpoint = ifelse(!dynamic, "ParquetFile/classic", "ParquetFile"),
+      endpoint = if (dynamic) "ParquetFile" else "ParquetFile/classic",
       countries,
       cities,
       pollutants,
@@ -115,10 +115,7 @@ get_eea_parquet_files <-
       compress
     )
 
-    # API URL and endpoint
-    file_name <- "download_data.zip"
-
-    # Download and unzip
+    # write response to disk
     downloaded_file <- httr2::resp_body_raw(resp)
     writeBin(downloaded_file, con = file)
 
@@ -142,11 +139,11 @@ get_eea_parquet_async <-
     dynamic = TRUE
   ) {
     resp <- parquet_api_response(
-      endpoint = ifelse(
-        !dynamic,
-        "ParquetFile/async/classic",
+      endpoint = if (dynamic) {
         "ParquetFile/async"
-      ),
+      } else {
+        "ParquetFile/async/classic"
+      },
       countries,
       cities,
       pollutants,
@@ -178,7 +175,7 @@ get_eea_parquet_urls <-
     compress = TRUE
   ) {
     resp <- parquet_api_response(
-      endpoint = "/ParquetFile/urls",
+      endpoint = "ParquetFile/urls",
       countries,
       cities,
       pollutants,

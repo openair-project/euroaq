@@ -38,14 +38,6 @@ import_eea_monitoring <-
     # import metadata
     meta <- import_eea_stations(countries = countries)
 
-    # if no cities, find out which cities are in the country
-    if (is.null(cities)) {
-      cities_df <- import_eea_cities(countries)
-      if (nrow(cities_df) > 0) {
-        cities <- cities_df$city_name
-      }
-    }
-
     # read data using different endpoints
     if (.endpoint == "files") {
       table <-
@@ -112,17 +104,16 @@ import_eea_monitoring_files <- function(
     dynamic = TRUE
   )
 
-  # get unique dir to extract to
-  tf <- as.numeric(Sys.time())
-  tdr <- tempdir()
-  exdir <- file.path(tdr, tf)
+  # get unique dir to extract to; clean up the zip and its contents on exit
+  exdir <- tempfile("euroaq_parquet_")
   dir.create(path = exdir)
+  on.exit(unlink(c(zipdest, exdir), recursive = TRUE, force = TRUE), add = TRUE)
 
   # unzip zip file into dir
   utils::unzip(zipfile = zipdest, exdir = exdir)
 
   # list all parquet files in the dir
-  pfiles <- list.files(exdir, recursive = TRUE, pattern = ".parquet")
+  pfiles <- list.files(exdir, recursive = TRUE, pattern = "\\.parquet$")
 
   # read all parquet files w/ arrow
   table <-
