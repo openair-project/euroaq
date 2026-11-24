@@ -22,6 +22,27 @@ import_eea_stations <- function(
 
   country_codes <- import_eea_countries()
 
+  # check all country codes are recognised
+  unknown <- setdiff(countries, country_codes$country_code)
+  if (length(unknown) == length(unique(countries))) {
+    cli::cli_abort(
+      c(
+        "x" = "None of the provided {.arg countries} are recognised: {.val {unknown}}.",
+        "i" = "See {.fun import_eea_countries} for valid country codes."
+      ),
+      call = NULL
+    )
+  }
+  if (length(unknown) > 0L) {
+    cli::cli_warn(
+      c(
+        "!" = "Ignoring unrecognised {.arg countries}: {.val {unknown}}.",
+        "i" = "See {.fun import_eea_countries} for valid country codes."
+      ),
+      call = NULL
+    )
+  }
+
   countries <- country_codes$country_name[
     country_codes$country_code %in% countries
   ]
@@ -55,15 +76,29 @@ import_eea_stations <- function(
           )) |>
           httr2::req_perform(path = zip_path)
 
-        utils::unzip(zipfile = zip_path, exdir = dir_path)
+        tryCatch(
+          utils::unzip(zipfile = zip_path, exdir = dir_path),
+          error = function(e) NULL,
+          warning = function(w) NULL
+        )
+
+        csv <- list.files(
+          dir_path,
+          pattern = "DataExtract\\.csv$",
+          full.names = TRUE
+        )
+
+        if (length(csv) == 0L) {
+          cli::cli_warn(
+            "No station metadata could be found for {.val {x}}.",
+            call = NULL
+          )
+          return(NULL)
+        }
 
         suppressWarnings(
           vroom::vroom(
-            list.files(
-              dir_path,
-              pattern = "DataExtract\\.csv$",
-              full.names = TRUE
-            ),
+            csv,
             # read eagerly, as the file is deleted on exit
             altrep = FALSE,
             show_col_types = FALSE,

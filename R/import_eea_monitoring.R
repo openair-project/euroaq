@@ -19,7 +19,7 @@
 #'   Unlike the `get_eea_parquet_*()` family, at least one country must be
 #'   provided.
 #'
-#' @param ... Not currently used.
+#' @param ... These dots are for future extensions and must be empty.
 #'
 #' @param .endpoint Which of [get_eea_parquet_files()] or
 #'   [get_eea_parquet_urls()] to use. One of:
@@ -47,6 +47,7 @@ import_eea_monitoring <-
     ...,
     .endpoint = c("files", "urls")
   ) {
+    rlang::check_dots_empty()
     .endpoint <- rlang::arg_match(.endpoint, multiple = FALSE)
 
     # check arguments before any data is downloaded
@@ -83,7 +84,7 @@ import_eea_monitoring <-
       ) {
         cli::cli_warn(
           c(
-            "When using the 'urls' endpoint, the data files contain the time series covering your choice of country/city, pollutants, dataset and type. Given that the data files contain full time series, the list of URLs is not limited by the temporal coverage you might have selected. That is, the returned data will potentially contain dates outside the range specified."
+            "When using the 'urls' endpoint, the data files contain the complete time series covering your choice of country/city, pollutants and dataset. The list of URLs is therefore not limited by the temporal coverage or aggregation type you might have selected. That is, the returned data will potentially contain dates outside the range specified."
           ),
           call = NULL,
           .frequency = "regularly",
@@ -100,6 +101,16 @@ import_eea_monitoring <-
           datetime_end,
           aggregation_type
         )
+    }
+
+    if (nrow(table) == 0L) {
+      cli::cli_warn(
+        c(
+          "!" = "No data was returned for the requested countries, cities, pollutants, dataset and dates.",
+          "i" = "Check what is available using {.fun get_eea_parquet_urls}."
+        ),
+        call = NULL
+      )
     }
 
     # format data for returning
@@ -136,6 +147,16 @@ import_eea_monitoring_files <- function(
   dir.create(path = exdir)
   on.exit(unlink(c(zipdest, exdir), recursive = TRUE, force = TRUE), add = TRUE)
 
+  # if there is no data, the API returns an empty zip file which can't be
+  # opened by unzip()
+  entries <- tryCatch(
+    utils::unzip(zipfile = zipdest, list = TRUE),
+    error = function(e) NULL
+  )
+  if (is.null(entries) || nrow(entries) == 0L) {
+    return(empty_parquet_table())
+  }
+
   # unzip zip file into dir
   utils::unzip(zipfile = zipdest, exdir = exdir)
 
@@ -143,12 +164,7 @@ import_eea_monitoring_files <- function(
   pfiles <- list.files(exdir, recursive = TRUE, pattern = "\\.parquet$")
 
   # read all parquet files w/ arrow
-  table <-
-    lapply(file.path(exdir, pfiles), arrow::read_parquet) |>
-    dplyr::bind_rows()
-
-  # return
-  return(table)
+  read_parquets(file.path(exdir, pfiles))
 }
 
 #' @noRd
@@ -173,16 +189,69 @@ import_eea_monitoring_urls <- function(
   )
 
   # read all parquet files w/ arrow
-  table <-
-    lapply(urls, arrow::read_parquet) |>
-    dplyr::bind_rows()
+  read_parquets(urls)
+}
 
-  # return
-  return(table)
+#' Read and bind parquet files, returning a consistent empty table if there
+#' are none
+#' @noRd
+read_parquets <- function(paths) {
+  if (length(paths) == 0L) {
+    return(empty_parquet_table())
+  }
+  lapply(paths, arrow::read_parquet) |>
+    dplyr::bind_rows()
+}
+
+#' An empty version of the table in the EEA parquet files
+#' @noRd
+empty_parquet_table <- function() {
+  empty_time <- structure(numeric(), class = c("POSIXct", "POSIXt"))
+  dplyr::tibble(
+    Samplingpoint = character(),
+    Pollutant = integer(),
+    Start = empty_time,
+    End = empty_time,
+    Value = numeric(),
+    Unit = character(),
+    AggType = character(),
+    Validity = integer(),
+    Verification = integer(),
+    ResultTime = empty_time,
+    DataCapture = numeric(),
+    FkObservationLog = character()
+  )
+}
+
+#' The station metadata columns used by `format_monitoring()`, and their types
+#' @noRd
+empty_station_meta <- function() {
+  dplyr::tibble(
+    country = character(),
+    air_quality_network = character(),
+    air_quality_station_name = character(),
+    sampling_point_id = character(),
+    air_pollutant = character(),
+    timezone = character(),
+    longitude = numeric(),
+    latitude = numeric(),
+    altitude = numeric(),
+    altitude_unit = character(),
+    air_quality_station_area = character(),
+    air_quality_station_type = character()
+  )
 }
 
 #' @noRd
 format_monitoring <- function(table, meta) {
+  # make sure the station metadata has all of the columns needed below, even if
+  # it is empty or the metadata format has changed
+  template <- empty_station_meta()
+  missing_cols <- setdiff(names(template), names(meta))
+  for (col in missing_cols) {
+    meta[[col]] <- rep(template[[col]][NA_integer_], nrow(meta))
+  }
+
   # split samplingpoint into country & id
   table <-
     tidyr::separate_wider_delim(
@@ -222,7 +291,25 @@ format_monitoring <- function(table, meta) {
       "area" = "air_quality_station_area",
       "type" = "air_quality_station_type"
     ) |>
-    tidyr::unite(col = "type", "area", "type", sep = " ")
+    tidyr::unite(col = "type", "area", "type", sep = " ", na.rm = TRUE) |>
+    dplyr::mutate(type = dplyr::na_if(.data$type, ""))
+
+  # warn if any sampling points could not be matched to station metadata
+  unmatched <- unique(table$sampling_point_id[
+    !table$sampling_point_id %in% meta$sampling_point_id
+  ])
+  if (length(unmatched) > 0L) {
+    n_unmatched <- length(unmatched)
+    shown <- utils::head(unmatched, 5L)
+    cli::cli_warn(
+      c(
+        "!" = "No station metadata was found for {n_unmatched} sampling point{?s}, so site information (e.g., {.field site}, {.field lat}, {.field lng}) will be missing.",
+        "i" = "Sampling point{?s} without metadata: {.val {shown}}.",
+        if (n_unmatched > 5L) c("i" = "... and {n_unmatched - 5L} more.")
+      ),
+      call = NULL
+    )
+  }
 
   # set timezones
   out <- set_monitoring_timezones(out)

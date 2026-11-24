@@ -20,6 +20,12 @@
 
 * `import_eea_monitoring()` now checks `countries`, `dataset` and `aggregation_type` before downloading any data. In particular, `countries = NULL` now gives an informative error immediately.
 
+* `import_eea_monitoring()` and `import_eea_raster()` now error if any arguments are passed to `...`, which were previously silently ignored (e.g., misspelled argument names).
+
+* `import_eea_stations()` now errors if none of the given `countries` are recognised, and warns about any which are not. Previously, unrecognised countries were silently dropped.
+
+* `get_eea_raster_files()`, `get_eea_raster_async()` and `import_eea_raster()` now error if `pollutants` is empty or contains unrecognised pollutants. Previously, unrecognised pollutants were silently dropped.
+
 ## New Features
 
 * `import_eea_cities()` gains the `modelled` argument. When `modelled = TRUE`, it returns the cities for which CAMS forecast rasters are available (currently each country's capital), for use with `import_eea_raster()` and the `get_eea_raster_*()` family.
@@ -33,6 +39,22 @@
 * The descriptions of each `dataset` have been updated to match the EEA's documentation, and the `dynamic` and `compress` arguments are now more clearly documented.
 
 ## Bug Fixes
+
+* Functions downloading files from the EEA now warn if the 600MB download limit has been reached. Previously, the incomplete data was returned without any indication that it was incomplete.
+
+* Errors from the EEA API without an error message (e.g., a 404) now report the status code and its description, rather than failing with an unrelated error.
+
+* Requests which return no data are now handled gracefully:
+
+  * `import_eea_monitoring()` warns and returns an empty tibble with the usual columns. Previously, it failed with an unrelated error.
+
+  * `get_eea_parquet_urls()` returns an empty character vector, and `get_eea_country_city_spos()` returns an empty tibble.
+
+  * `import_eea_raster()` gives an informative error.
+
+* `import_eea_monitoring()` no longer fails if station metadata is unavailable for some or all sampling points. Instead, it warns and returns the data without site information (e.g., `site`, `lat` and `lng`) for those sampling points. `import_eea_stations()` warns, rather than fails, when no metadata can be found for a country.
+
+* `get_eea_parquet_urls()` now strips the byte-order mark from the start of the API's response, making it more robust.
 
 * `dynamic = TRUE` in `get_eea_parquet_files()` and `get_eea_parquet_async()` now explicitly requests the 'dynamic' method. Previously, the API was left to choose the method itself.
 

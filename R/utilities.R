@@ -81,15 +81,45 @@ check_dataset <- function(dataset, arg = rlang::caller_arg(dataset)) {
 }
 
 #' If an API does not return a 2XX code, pass on the body as an error
+#'
+#' Also warns if the API returns a 206 (Partial Content) status, which it uses
+#' to indicate that the 600MB download limit has been reached.
+#'
 #' @noRd
 report_error <- function(resp) {
-  if (!startsWith(as.character(resp$status_code), "2")) {
-    cli::cli_abort(
+  status <- httr2::resp_status(resp)
+
+  if (status == 206L) {
+    cli::cli_warn(
       c(
-        "!" = "{.strong Status code: {resp$status_code}}",
-        "i" = "{httr2::resp_body_string(resp)}"
+        "!" = "The EEA's 600MB download limit has been reached, so the returned data is {.strong incomplete}.",
+        "i" = "Consider requesting less data at once, or using {.fun get_eea_parquet_urls} or {.code import_eea_monitoring(.endpoint = \"urls\")}."
       ),
       call = NULL
     )
   }
+
+  if (status < 200L || status >= 300L) {
+    # the body may be empty, in which case describe the status code instead
+    body <- tryCatch(
+      trimws(httr2::resp_body_string(resp)),
+      error = function(e) ""
+    )
+    if (!nzchar(body)) {
+      body <- httr2::resp_status_desc(resp)
+    }
+    if (is.na(body) || !nzchar(body)) {
+      body <- "No further details were provided by the API."
+    }
+
+    cli::cli_abort(
+      c(
+        "!" = "{.strong Status code: {status}}",
+        "i" = "{body}"
+      ),
+      call = NULL
+    )
+  }
+
+  invisible(resp)
 }

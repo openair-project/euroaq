@@ -11,7 +11,7 @@
 #'
 #' @inheritParams get_eea_raster_files
 #'
-#' @param ... Not currently used.
+#' @param ... These dots are for future extensions and must be empty.
 #'
 #' @param .endpoint Provided for consistency with [import_eea_monitoring()].
 #'   Currently only `"files"` is supported, which uses [get_eea_raster_files()].
@@ -28,6 +28,7 @@ import_eea_raster <- function(
   ...,
   .endpoint = "files"
 ) {
+  rlang::check_dots_empty()
   rlang::check_installed("terra")
   .endpoint <- rlang::arg_match(.endpoint, multiple = FALSE)
 
@@ -49,12 +50,25 @@ import_eea_raster <- function(
       file = zip_path
     )
 
-    utils::unzip(zipfile = zip_path, exdir = dir_path)
-
-    return(
-      terra::rast(
-        list.files(dir_path, full.names = TRUE, pattern = "\\.tiff?$")
-      )
+    # an empty zip file (i.e., no data) can't be opened by unzip()
+    tryCatch(
+      utils::unzip(zipfile = zip_path, exdir = dir_path),
+      error = function(e) NULL,
+      warning = function(w) NULL
     )
+
+    tiffs <- list.files(dir_path, full.names = TRUE, pattern = "\\.tiff?$")
+
+    if (length(tiffs) == 0L) {
+      cli::cli_abort(
+        c(
+          "x" = "No rasters were returned for the requested country, city, pollutants and dates.",
+          "i" = "Note that forecast rasters are only available for recent dates."
+        ),
+        call = NULL
+      )
+    }
+
+    return(terra::rast(tiffs))
   }
 }

@@ -119,8 +119,30 @@ raster_api_response <- function(
 ) {
   rlang::arg_match(output_format, c("zip", "tiff"))
 
+  if (length(pollutants) == 0L) {
+    cli::cli_abort(
+      c(
+        "Please specify at least one pollutant using {.arg pollutants}.",
+        "i" = "Forecast rasters are available for {.val {c('NO2', 'O3', 'PM10', 'PM2.5')}}."
+      ),
+      call = NULL
+    )
+  }
+
   pollutant_vocab <- import_eea_pollutants()
   pollutant_vocab$pollutant <- tolower(pollutant_vocab$pollutant)
+
+  # all pollutants must be recognised, otherwise they'd be silently dropped
+  unknown <- pollutants[!tolower(pollutants) %in% pollutant_vocab$pollutant]
+  if (length(unknown) > 0L) {
+    cli::cli_abort(
+      c(
+        "x" = "Unrecognised {.arg pollutants}: {.val {unknown}}.",
+        "i" = "Forecast rasters are available for {.val {c('NO2', 'O3', 'PM10', 'PM2.5')}}."
+      ),
+      call = NULL
+    )
+  }
 
   pollutants <- pollutant_vocab$vocabulary_url[
     pollutant_vocab$pollutant %in% tolower(pollutants)

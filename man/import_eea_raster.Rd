@@ -36,7 +36,7 @@ given year, meaning providing the same integer to each will return a year
 of data.
 }}
 
-\item{...}{Not currently used.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{.endpoint}{Provided for consistency with \code{\link[=import_eea_monitoring]{import_eea_monitoring()}}.
 Currently only \code{"files"} is supported, which uses \code{\link[=get_eea_raster_files]{get_eea_raster_files()}}.}

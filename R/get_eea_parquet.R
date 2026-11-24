@@ -217,8 +217,21 @@ get_eea_parquet_urls <-
       email = email
     )
 
-    utils::read.csv(text = httr2::resp_body_string(resp))$ParquetFileUrl
+    parse_parquet_urls(resp)
   }
+
+#' Parse the CSV returned by the 'ParquetFile/urls' endpoint
+#'
+#' This is a single 'ParquetFileUrl' column, which starts with a UTF-8
+#' byte-order mark and may contain no URLs at all.
+#'
+#' @noRd
+parse_parquet_urls <- function(resp) {
+  body <- tryCatch(httr2::resp_body_string(resp), error = function(e) "")
+  lines <- trimws(strsplit(body, "\r?\n")[[1]])
+  lines <- sub("^\ufeff", "", lines)
+  lines[nzchar(lines) & lines != "ParquetFileUrl"]
+}
 
 #' @rdname get-parquet
 #' @order 4
@@ -246,7 +259,14 @@ get_eea_country_city_spos <-
       email = email
     )
 
-    httr2::resp_body_json(resp, simplifyVector = TRUE) |>
+    spos <- httr2::resp_body_json(resp, simplifyVector = TRUE)
+
+    # with no results, the API returns an empty list
+    if (length(spos) == 0L) {
+      return(dplyr::tibble(localid = character()))
+    }
+
+    spos |>
       dplyr::select(-"pk") |>
       dplyr::tibble()
   }

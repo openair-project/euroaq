@@ -68,7 +68,7 @@ the values:
 weekly, monthly, etc.) (\code{"var"}).
 }}
 
-\item{...}{Not currently used.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{.endpoint}{Which of \code{\link[=get_eea_parquet_files]{get_eea_parquet_files()}} or
 \code{\link[=get_eea_parquet_urls]{get_eea_parquet_urls()}} to use. One of:
