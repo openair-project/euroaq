@@ -29,8 +29,9 @@
 #'   given year, meaning providing the same integer to each will return a year
 #'   of data.
 #'
-#' @param file The file to write the zip file to; should ideally end in
-#'   `".zip"`. Defaults to a temporary file using [tempfile()].
+#' @param file The file to write the downloaded file to; should ideally end in
+#'   `".zip"` or `".tiff"`, matching `output_format`. Defaults to a temporary
+#'   file using [tempfile()]. Only used in [get_eea_raster_files()].
 #'
 #' @param email Optional field to identify the user who make the download and
 #'   improve the communication if problems are detected.
@@ -87,8 +88,7 @@ get_eea_raster_async <- function(
   datetime_start = Sys.Date() - 10,
   datetime_end = Sys.Date(),
   email = NULL,
-  output_format = "zip",
-  file = tempfile(fileext = paste0(".", output_format))
+  output_format = "zip"
 ) {
   resp <-
     raster_api_response(

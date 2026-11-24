@@ -23,8 +23,7 @@ get_eea_raster_async(
   datetime_start = Sys.Date() - 10,
   datetime_end = Sys.Date(),
   email = NULL,
-  output_format = "zip",
-  file = tempfile(fileext = paste0(".", output_format))
+  output_format = "zip"
 )
 }
 \arguments{
@@ -54,8 +53,9 @@ improve the communication if problems are detected.}
 
 \item{output_format}{One of \code{"zip"} or \code{"tiff"}.}
 
-\item{file}{The file to write the zip file to; should ideally end in
-\code{".zip"}. Defaults to a temporary file using \code{\link[=tempfile]{tempfile()}}.}
+\item{file}{The file to write the downloaded file to; should ideally end in
+\code{".zip"} or \code{".tiff"}, matching \code{output_format}. Defaults to a temporary
+file using \code{\link[=tempfile]{tempfile()}}. Only used in \code{\link[=get_eea_raster_files]{get_eea_raster_files()}}.}
 }
 \value{
 One of:

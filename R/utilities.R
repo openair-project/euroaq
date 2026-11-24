@@ -60,6 +60,26 @@ format_date_for_api <- function(
   format(x, "%Y-%m-%dT%H:%M:%SZ")
 }
 
+#' Check that `dataset` is a single integer between 1 and 5
+#' @noRd
+check_dataset <- function(dataset, arg = rlang::caller_arg(dataset)) {
+  if (
+    !is.numeric(dataset) ||
+      length(dataset) != 1L ||
+      is.na(dataset) ||
+      !dataset %in% 1:5
+  ) {
+    cli::cli_abort(
+      c(
+        "{.arg {arg}} must be a single integer between 1 and 5.",
+        "i" = "See the documentation of {.fun get_eea_parquet_files} for the available datasets."
+      ),
+      call = NULL
+    )
+  }
+  invisible(dataset)
+}
+
 #' If an API does not return a 2XX code, pass on the body as an error
 #' @noRd
 report_error <- function(resp) {

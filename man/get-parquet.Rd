@@ -43,8 +43,7 @@ get_eea_parquet_urls(
   datetime_end = as.integer(format(Sys.Date(), "\%Y")),
   dataset = 1L,
   aggregation_type = "hour",
-  email = NULL,
-  compress = TRUE
+  email = NULL
 )
 
 get_eea_country_city_spos(
@@ -55,8 +54,7 @@ get_eea_country_city_spos(
   datetime_end = as.integer(format(Sys.Date(), "\%Y")),
   dataset = 1L,
   aggregation_type = "hour",
-  email = NULL,
-  compress = TRUE
+  email = NULL
 )
 
 get_eea_summary(
@@ -67,8 +65,7 @@ get_eea_summary(
   datetime_end = as.integer(format(Sys.Date(), "\%Y")),
   dataset = 1L,
   aggregation_type = "hour",
-  email = NULL,
-  compress = TRUE
+  email = NULL
 )
 }
 \arguments{
@@ -98,15 +95,17 @@ Note that the EEA reports hourly data in UTC+01, so \code{Date} and \code{intege
 inputs will define days and years in UTC+01 for hourly data, and in the
 local time of each station for daily data.}
 
-\item{dataset}{The value of the dataset. One of:
+\item{dataset}{The dataset to use, as a single integer. One of:
 \enumerate{
-\item Unverified data transmitted continuously (Up-To-Date/UTD/E2a) data from
-the beginning of the year.
-\item Verified data (E1a) from 2013, reported by countries by 30 September
-each year for the previous year.
-\item Historical Airbase data delivered between 2002 and 2012 before Air
-Quality Directive 2008/50/EC entered into force.
-\item Downscaled CAMS forecast at station level.
+\item Unverified data transmitted continuously (Up-To-Date/UTD/E2a), covering
+the period not yet covered by verified data.
+\item Verified data (E1a) from 2013 onwards, reported by countries by 30
+September each year for the previous year.
+\item Historical Airbase data delivered between 2002 and 2012, before Air
+Quality Directive 2008/50/EC entered into force. Note that Airbase uses
+different sampling point identifiers to datasets 1 and 2.
+\item CAMS forecasts, downscaled by the EEA to monitoring stations using a 1x1
+km grid. Only available for PM10, PM2.5, O3 and NO2.
 \item Gap-filled E2a, using linear interpolation for smaller gaps, and a
 regressor based on similar stations for larger ones.
 }}
@@ -124,12 +123,15 @@ weekly, monthly, etc.) (\code{"var"}).
 improve the communication if problems are detected.}
 
 \item{compress}{Boolean value that defines the type of the file to be
-obtained (\code{TRUE} for ZIP or \code{FALSE} for parquet).}
+obtained (\code{TRUE} for ZIP or \code{FALSE} for parquet). Note that, at the time of
+writing, the API appears to return a ZIP file regardless of this value.}
 
-\item{dynamic}{If \code{TRUE}, will use a dynamic engine to create a single
-parquet file containing all results rather than downloading many separate
-parquet files. \code{TRUE} is the default, to reflect the default option of the
-EEA data download portal itself.}
+\item{dynamic}{If \code{TRUE}, the default, will use the 'dynamic' method, which
+can combine the results into a single parquet file (in practice, it appears
+to do so for larger requests only). If \code{FALSE}, will use the 'classic'
+method, which always creates a separate parquet file for each sampling
+point. The data contained in the files is the same either way, but the
+dynamic method is typically faster.}
 
 \item{file}{The file to write the zip file to; should ideally end in
 \code{".zip"}. Defaults to a temporary file using \code{\link[=tempfile]{tempfile()}}.}
@@ -155,19 +157,25 @@ files in it.
 \item \code{\link[=get_eea_parquet_async]{get_eea_parquet_async()}} prepares this in the background; the
 function returns an URL in which the file to be downloaded will be generated.
 \item \code{\link[=get_eea_parquet_urls]{get_eea_parquet_urls()}} returns a list of URLs corresponding to the filtered
-parquets.
+parquets. Each parquet file contains the complete time series of a single
+sampling point, so \code{datetime_start}, \code{datetime_end} and \code{aggregation_type}
+are ignored.
 \item \code{\link[=get_eea_summary]{get_eea_summary()}} estimates the number of files and their size,
-but does not return any data.
+but does not return any data. Like \code{\link[=get_eea_parquet_urls]{get_eea_parquet_urls()}}, it considers
+complete time series, so \code{datetime_start}, \code{datetime_end} and
+\code{aggregation_type} are ignored.
 \item \code{\link[=get_eea_country_city_spos]{get_eea_country_city_spos()}} returns the sampling points in the given
 \code{countries} and \code{cities} for the given \code{dataset}. Note that it does
 \strong{not} filter by \code{pollutants}, \code{aggregation_type}, \code{datetime_start} or
-\code{datetime_end}, and \code{email} and \code{compress} have no effect; these arguments
-are only provided for consistency with the other functions. To find the
-sampling points with data for specific pollutants, use
-\code{\link[=get_eea_parquet_urls]{get_eea_parquet_urls()}}, which returns one file per sampling point.
+\code{datetime_end}. To find the sampling points with data for specific
+pollutants, use \code{\link[=get_eea_parquet_urls]{get_eea_parquet_urls()}}, which returns one file per
+sampling point.
 }
 }
 \details{
+Arguments which are ignored by a given function are kept for consistency,
+so that the same arguments can be passed to each of these functions.
+
 Note that cities are defined by the EEA using the 'Urban Audit' city
 boundaries, which may extend beyond the city's administrative area. For
 example, \code{"Madrid"} includes sampling points in several neighbouring

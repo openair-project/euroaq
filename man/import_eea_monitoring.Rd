@@ -17,8 +17,9 @@ import_eea_monitoring(
 )
 }
 \arguments{
-\item{countries}{A vector of country codes from \code{\link[=import_eea_countries]{import_eea_countries()}}. If
-\code{NULL}, data from all countries will be imported.}
+\item{countries}{A vector of country codes from \code{\link[=import_eea_countries]{import_eea_countries()}}.
+Unlike the \verb{get_eea_parquet_*()} family, at least one country must be
+provided.}
 
 \item{cities}{A vector of cities in the given \code{countries} from
 \code{\link[=import_eea_cities]{import_eea_cities()}}. If \code{NULL}, data from all cities in the given
@@ -43,15 +44,17 @@ Note that the EEA reports hourly data in UTC+01, so \code{Date} and \code{intege
 inputs will define days and years in UTC+01 for hourly data, and in the
 local time of each station for daily data.}
 
-\item{dataset}{The value of the dataset. One of:
+\item{dataset}{The dataset to use, as a single integer. One of:
 \enumerate{
-\item Unverified data transmitted continuously (Up-To-Date/UTD/E2a) data from
-the beginning of the year.
-\item Verified data (E1a) from 2013, reported by countries by 30 September
-each year for the previous year.
-\item Historical Airbase data delivered between 2002 and 2012 before Air
-Quality Directive 2008/50/EC entered into force.
-\item Downscaled CAMS forecast at station level.
+\item Unverified data transmitted continuously (Up-To-Date/UTD/E2a), covering
+the period not yet covered by verified data.
+\item Verified data (E1a) from 2013 onwards, reported by countries by 30
+September each year for the previous year.
+\item Historical Airbase data delivered between 2002 and 2012, before Air
+Quality Directive 2008/50/EC entered into force. Note that Airbase uses
+different sampling point identifiers to datasets 1 and 2.
+\item CAMS forecasts, downscaled by the EEA to monitoring stations using a 1x1
+km grid. Only available for PM10, PM2.5, O3 and NO2.
 \item Gap-filled E2a, using linear interpolation for smaller gaps, and a
 regressor based on similar stations for larger ones.
 }}
@@ -70,8 +73,12 @@ weekly, monthly, etc.) (\code{"var"}).
 \item{.endpoint}{Which of \code{\link[=get_eea_parquet_files]{get_eea_parquet_files()}} or
 \code{\link[=get_eea_parquet_urls]{get_eea_parquet_urls()}} to use. One of:
 \itemize{
-\item \code{"files"}, which can return limited amounts of data but respects \code{datetime_start} and \code{datetime_end}.
-\item \code{"urls"}, which can return much more data which may potentially contain dates outside the \code{datetime_start} to \code{datetime_end} range specified.
+\item \code{"files"}, which can return limited amounts of data but respects
+\code{datetime_start}, \code{datetime_end} and \code{aggregation_type}.
+\item \code{"urls"}, which can return much more data, but returns the complete time
+series of each sampling point. The returned data may therefore contain
+dates outside the \code{datetime_start} to \code{datetime_end} range, and
+aggregation types other than \code{aggregation_type}.
 }}
 }
 \value{

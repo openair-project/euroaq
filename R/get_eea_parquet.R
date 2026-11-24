@@ -7,16 +7,22 @@
 #' - [get_eea_parquet_async()] prepares this in the background; the
 #' function returns an URL in which the file to be downloaded will be generated.
 #' - [get_eea_parquet_urls()] returns a list of URLs corresponding to the filtered
-#' parquets.
+#' parquets. Each parquet file contains the complete time series of a single
+#' sampling point, so `datetime_start`, `datetime_end` and `aggregation_type`
+#' are ignored.
 #' - [get_eea_summary()] estimates the number of files and their size,
-#' but does not return any data.
+#' but does not return any data. Like [get_eea_parquet_urls()], it considers
+#' complete time series, so `datetime_start`, `datetime_end` and
+#' `aggregation_type` are ignored.
 #' - [get_eea_country_city_spos()] returns the sampling points in the given
 #' `countries` and `cities` for the given `dataset`. Note that it does
 #' **not** filter by `pollutants`, `aggregation_type`, `datetime_start` or
-#' `datetime_end`, and `email` and `compress` have no effect; these arguments
-#' are only provided for consistency with the other functions. To find the
-#' sampling points with data for specific pollutants, use
-#' [get_eea_parquet_urls()], which returns one file per sampling point.
+#' `datetime_end`. To find the sampling points with data for specific
+#' pollutants, use [get_eea_parquet_urls()], which returns one file per
+#' sampling point.
+#'
+#' Arguments which are ignored by a given function are kept for consistency,
+#' so that the same arguments can be passed to each of these functions.
 #'
 #' Note that cities are defined by the EEA using the 'Urban Audit' city
 #' boundaries, which may extend beyond the city's administrative area. For
@@ -50,18 +56,20 @@
 #'   inputs will define days and years in UTC+01 for hourly data, and in the
 #'   local time of each station for daily data.
 #'
-#' @param dataset The value of the dataset. One of:
+#' @param dataset The dataset to use, as a single integer. One of:
 #'
-#'   1. Unverified data transmitted continuously (Up-To-Date/UTD/E2a) data from
-#'   the beginning of the year.
+#'   1. Unverified data transmitted continuously (Up-To-Date/UTD/E2a), covering
+#'   the period not yet covered by verified data.
 #'
-#'   2. Verified data (E1a) from 2013, reported by countries by 30 September
-#'   each year for the previous year.
+#'   2. Verified data (E1a) from 2013 onwards, reported by countries by 30
+#'   September each year for the previous year.
 #'
-#'   3. Historical Airbase data delivered between 2002 and 2012 before Air
-#'   Quality Directive 2008/50/EC entered into force.
+#'   3. Historical Airbase data delivered between 2002 and 2012, before Air
+#'   Quality Directive 2008/50/EC entered into force. Note that Airbase uses
+#'   different sampling point identifiers to datasets 1 and 2.
 #'
-#'   4. Downscaled CAMS forecast at station level.
+#'   4. CAMS forecasts, downscaled by the EEA to monitoring stations using a 1x1
+#'   km grid. Only available for PM10, PM2.5, O3 and NO2.
 #'
 #'   5. Gap-filled E2a, using linear interpolation for smaller gaps, and a
 #'   regressor based on similar stations for larger ones.
@@ -79,16 +87,19 @@
 #' @param file The file to write the zip file to; should ideally end in
 #'   `".zip"`. Defaults to a temporary file using [tempfile()].
 #'
-#' @param dynamic If `TRUE`, will use a dynamic engine to create a single
-#'   parquet file containing all results rather than downloading many separate
-#'   parquet files. `TRUE` is the default, to reflect the default option of the
-#'   EEA data download portal itself.
+#' @param dynamic If `TRUE`, the default, will use the 'dynamic' method, which
+#'   can combine the results into a single parquet file (in practice, it appears
+#'   to do so for larger requests only). If `FALSE`, will use the 'classic'
+#'   method, which always creates a separate parquet file for each sampling
+#'   point. The data contained in the files is the same either way, but the
+#'   dynamic method is typically faster.
 #'
 #' @param email Optional field to identify the user who make the download and
 #'   improve the communication if problems are detected.
 #'
 #' @param compress Boolean value that defines the type of the file to be
-#'   obtained (`TRUE` for ZIP or `FALSE` for parquet).
+#'   obtained (`TRUE` for ZIP or `FALSE` for parquet). Note that, at the time of
+#'   writing, the API appears to return a ZIP file regardless of this value.
 #'
 #' @returns One of:
 #'
@@ -124,16 +135,16 @@ get_eea_parquet_files <-
     file = tempfile(fileext = ".zip")
   ) {
     resp <- parquet_api_response(
-      endpoint = if (dynamic) "ParquetFile" else "ParquetFile/classic",
-      countries,
-      cities,
-      pollutants,
-      dataset,
-      datetime_start,
-      datetime_end,
-      aggregation_type,
-      email,
-      compress
+      endpoint = if (dynamic) "ParquetFile/dynamic" else "ParquetFile/classic",
+      countries = countries,
+      cities = cities,
+      pollutants = pollutants,
+      dataset = dataset,
+      datetime_start = datetime_start,
+      datetime_end = datetime_end,
+      aggregation_type = aggregation_type,
+      email = email,
+      compress = compress
     )
 
     # write response to disk
@@ -161,19 +172,19 @@ get_eea_parquet_async <-
   ) {
     resp <- parquet_api_response(
       endpoint = if (dynamic) {
-        "ParquetFile/async"
+        "ParquetFile/async/dynamic"
       } else {
         "ParquetFile/async/classic"
       },
-      countries,
-      cities,
-      pollutants,
-      dataset,
-      datetime_start,
-      datetime_end,
-      aggregation_type,
-      email,
-      compress
+      countries = countries,
+      cities = cities,
+      pollutants = pollutants,
+      dataset = dataset,
+      datetime_start = datetime_start,
+      datetime_end = datetime_end,
+      aggregation_type = aggregation_type,
+      email = email,
+      compress = compress
     )
 
     return(httr2::resp_body_string(resp))
@@ -192,20 +203,18 @@ get_eea_parquet_urls <-
     datetime_end = as.integer(format(Sys.Date(), "%Y")),
     dataset = 1L,
     aggregation_type = "hour",
-    email = NULL,
-    compress = TRUE
+    email = NULL
   ) {
     resp <- parquet_api_response(
       endpoint = "ParquetFile/urls",
-      countries,
-      cities,
-      pollutants,
-      dataset,
-      datetime_start,
-      datetime_end,
-      aggregation_type,
-      email,
-      compress
+      countries = countries,
+      cities = cities,
+      pollutants = pollutants,
+      dataset = dataset,
+      datetime_start = datetime_start,
+      datetime_end = datetime_end,
+      aggregation_type = aggregation_type,
+      email = email
     )
 
     utils::read.csv(text = httr2::resp_body_string(resp))$ParquetFileUrl
@@ -223,20 +232,18 @@ get_eea_country_city_spos <-
     datetime_end = as.integer(format(Sys.Date(), "%Y")),
     dataset = 1L,
     aggregation_type = "hour",
-    email = NULL,
-    compress = TRUE
+    email = NULL
   ) {
     resp <- parquet_api_response(
       endpoint = "City/GetCountryCitySpos",
-      countries,
-      cities,
-      pollutants,
-      dataset,
-      datetime_start,
-      datetime_end,
-      aggregation_type,
-      email,
-      compress
+      countries = countries,
+      cities = cities,
+      pollutants = pollutants,
+      dataset = dataset,
+      datetime_start = datetime_start,
+      datetime_end = datetime_end,
+      aggregation_type = aggregation_type,
+      email = email
     )
 
     httr2::resp_body_json(resp, simplifyVector = TRUE) |>
@@ -256,20 +263,18 @@ get_eea_summary <-
     datetime_end = as.integer(format(Sys.Date(), "%Y")),
     dataset = 1L,
     aggregation_type = "hour",
-    email = NULL,
-    compress = TRUE
+    email = NULL
   ) {
     resp <- parquet_api_response(
       endpoint = "DownloadSummary",
-      countries,
-      cities,
-      pollutants,
-      dataset,
-      datetime_start,
-      datetime_end,
-      aggregation_type,
-      email,
-      compress
+      countries = countries,
+      cities = cities,
+      pollutants = pollutants,
+      dataset = dataset,
+      datetime_start = datetime_start,
+      datetime_end = datetime_end,
+      aggregation_type = aggregation_type,
+      email = email
     )
 
     httr2::resp_body_json(resp)
@@ -287,8 +292,9 @@ parquet_api_response <- function(
   datetime_end,
   aggregation_type,
   email,
-  compress
+  compress = TRUE
 ) {
+  check_dataset(dataset)
   rlang::arg_match(aggregation_type, c("hour", "day", "var"))
 
   # Request body
@@ -296,7 +302,7 @@ parquet_api_response <- function(
     countries = as.list(countries),
     cities = as.list(cities),
     pollutants = as.list(pollutants),
-    dataset = dataset
+    dataset = as.integer(dataset)
   )
 
   if (!is.null(datetime_start)) {

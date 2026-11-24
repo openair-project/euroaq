@@ -12,6 +12,14 @@
 
   * `datetime_start` and `datetime_end` now error if given anything other than a single `POSIXct`, `Date` or whole number. Previously, other inputs (e.g., a character string) silently removed the temporal filter.
 
+* The `compress` argument has been removed from `get_eea_parquet_urls()`, `get_eea_summary()` and `get_eea_country_city_spos()`, as it only affects downloaded files and had no effect on these functions.
+
+* The unused `file` argument has been removed from `get_eea_raster_async()`.
+
+* `dataset` must now be a single integer between 1 and 5, and is checked before any request is made.
+
+* `import_eea_monitoring()` now checks `countries`, `dataset` and `aggregation_type` before downloading any data. In particular, `countries = NULL` now gives an informative error immediately.
+
 ## New Features
 
 * `import_eea_cities()` gains the `modelled` argument. When `modelled = TRUE`, it returns the cities for which CAMS forecast rasters are available (currently each country's capital), for use with `import_eea_raster()` and the `get_eea_raster_*()` family.
@@ -20,7 +28,13 @@
 
 * The documentation of `get_eea_country_city_spos()` now makes clear that it only filters by `countries`, `cities` and `dataset`, ignoring all other arguments, and that its EEA-defined cities may extend beyond their administrative boundaries.
 
+* The documentation of `get_eea_parquet_urls()`, `get_eea_summary()` and `import_eea_monitoring(.endpoint = "urls")` now makes clear that `datetime_start`, `datetime_end` and `aggregation_type` are ignored, as these return complete time series.
+
+* The descriptions of each `dataset` have been updated to match the EEA's documentation, and the `dynamic` and `compress` arguments are now more clearly documented.
+
 ## Bug Fixes
+
+* `dynamic = TRUE` in `get_eea_parquet_files()` and `get_eea_parquet_async()` now explicitly requests the 'dynamic' method. Previously, the API was left to choose the method itself.
 
 * `import_eea_monitoring()` no longer always warns that dates may fall outside of the requested range when `.endpoint = "urls"`; the warning is now only given if `datetime_start` or `datetime_end` are provided.
 

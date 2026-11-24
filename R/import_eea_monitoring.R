@@ -15,14 +15,22 @@
 #'
 #' @inheritParams get_eea_parquet_urls
 #'
+#' @param countries A vector of country codes from [import_eea_countries()].
+#'   Unlike the `get_eea_parquet_*()` family, at least one country must be
+#'   provided.
+#'
 #' @param ... Not currently used.
 #'
 #' @param .endpoint Which of [get_eea_parquet_files()] or
 #'   [get_eea_parquet_urls()] to use. One of:
 #'
-#'   - `"files"`, which can return limited amounts of data but respects `datetime_start` and `datetime_end`.
+#'   - `"files"`, which can return limited amounts of data but respects
+#'   `datetime_start`, `datetime_end` and `aggregation_type`.
 #'
-#'   - `"urls"`, which can return much more data which may potentially contain dates outside the `datetime_start` to `datetime_end` range specified.
+#'   - `"urls"`, which can return much more data, but returns the complete time
+#'   series of each sampling point. The returned data may therefore contain
+#'   dates outside the `datetime_start` to `datetime_end` range, and
+#'   aggregation types other than `aggregation_type`.
 #'
 #' @author Jack Davison
 #'
@@ -40,6 +48,19 @@ import_eea_monitoring <-
     .endpoint = c("files", "urls")
   ) {
     .endpoint <- rlang::arg_match(.endpoint, multiple = FALSE)
+
+    # check arguments before any data is downloaded
+    if (length(countries) == 0L) {
+      cli::cli_abort(
+        "Please specify at least one country using {.arg countries}.",
+        call = NULL
+      )
+    }
+    check_dataset(dataset)
+    aggregation_type <- rlang::arg_match(
+      aggregation_type,
+      c("hour", "day", "var")
+    )
 
     # import metadata
     meta <- import_eea_stations(countries = countries)
