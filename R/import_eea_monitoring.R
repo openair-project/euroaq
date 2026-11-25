@@ -96,8 +96,7 @@ import_eea_monitoring <-
     if (nrow(table) == 0L) {
       cli::cli_warn(
         c(
-          "!" = "No data was returned for the requested countries, cities, pollutants, dataset and dates.",
-          "i" = "Check what is available using {.fun get_eea_parquet_urls}."
+          "!" = "No data was returned for the requested countries, cities, pollutants, dataset and dates."
         ),
         call = NULL
       )
